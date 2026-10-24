@@ -1,18 +1,10 @@
-import akun from "../../../akun.json";
-import { buildFeed } from "../../../lib/feed.js";
+import feed from "../../../data/feed.json";
 
-export const dynamic = "force-dynamic"; // jangan dijalankan saat build
-export const maxDuration = 30;
+// Data ditulis worker VPS ke repo dan ikut ter-build di Vercel, jadi tidak ada scrape saat runtime.
+export const dynamic = "force-static";
 
-// Dicache di CDN Vercel 1 jam; setelah itu data lama tetap dilayani sambil diperbarui di belakang layar.
-// Respons gagal total sengaja TIDAK dicache supaya cache lama yang bagus tidak tertimpa.
-export async function GET() {
-  const feed = await buildFeed(akun);
-  const failedAll = feed.sourceCount > 0 && feed.posts.length === 0;
+export function GET() {
   return Response.json(feed, {
-    status: failedAll ? 502 : 200,
-    headers: {
-      "Cache-Control": failedAll ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
-    },
+    headers: { "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400" },
   });
 }

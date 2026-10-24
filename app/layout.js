@@ -1,4 +1,7 @@
+import { Outfit } from "next/font/google";
 import "./globals.css";
+
+const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font", display: "swap" });
 
 export const metadata = {
   title: "Scene Finder",
@@ -6,11 +9,11 @@ export const metadata = {
   referrer: "no-referrer", // thumbnail Instagram dimuat tanpa referrer
 };
 
-export const viewport = { themeColor: "#141414" };
+export const viewport = { themeColor: "#A6C84B" };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id">
+    <html lang="id" className={outfit.variable}>
       <body>{children}</body>
     </html>
   );

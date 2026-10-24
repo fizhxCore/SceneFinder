@@ -30,30 +30,33 @@ function Hero({ post, onOpen }) {
       <Thumb src={post.thumb} className="hero-bg" eager />
       <div className="hero-shade" />
       <div className="hero-content">
-        <span className="hero-label">TERBARU</span>
-        <h1>{firstLine(post.caption, 90) || `Scene dari @${post.username}`}</h1>
-        <p className="hero-meta">
-          @{post.username}
-          {post.category ? ` · ${post.category}` : ""}
-          {post.ts ? ` · ${timeAgo(post.ts)}` : ""}
+        <p className="hero-badges">
+          <span className="badge badge-lime">Terbaru</span>
+          <span className="badge">@{post.username}</span>
+          {post.category && <span className="badge">{post.category}</span>}
+          {post.ts > 0 && <span className="badge">{timeAgo(post.ts)}</span>}
         </p>
+        <h1>{firstLine(post.caption, 90) || `Scene dari @${post.username}`}</h1>
         {chips.length > 0 && <p className="hero-tags">{chips.map((c) => `#${c}`).join("  ")}</p>}
         <div className="actions">
-          <a className="btn btn-light" href={post.url} target="_blank" rel="noopener noreferrer">
-            ▶ Buka di Instagram
+          <a className="btn btn-ink" href={post.url} target="_blank" rel="noopener noreferrer">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor" /></svg>
+            Buka di Instagram
           </a>
-          <button type="button" className="btn btn-dim" onClick={() => onOpen(post)}>
-            ⓘ Detail
+          <button type="button" className="btn btn-mint" onClick={() => onOpen(post)}>
+            Detail
           </button>
         </div>
       </div>
-      <Thumb src={post.thumb} className="hero-poster" eager />
+      <div className="hero-frame">
+        <Thumb src={post.thumb} className="hero-poster" eager />
+      </div>
     </section>
   );
 }
 
 export default function Browse() {
-  const [state, setState] = useState({ status: "loading", posts: [], errors: [], sourceCount: 0, updatedAt: 0 });
+  const [state, setState] = useState({ status: "loading", posts: [], errors: [], sourceCount: 0, updatedAt: 0, checkedAt: 0 });
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [selected, setSelected] = useState(null);
@@ -70,6 +73,7 @@ export default function Browse() {
           errors: data.errors || [],
           sourceCount: data.sourceCount || 0,
           updatedAt: data.updatedAt || 0,
+          checkedAt: data.checkedAt || 0,
         });
       })
       .catch((e) => {
@@ -96,6 +100,7 @@ export default function Browse() {
   const results = useMemo(() => (searching ? searchPosts(posts, query, { category }) : []), [posts, query, category, searching]);
   const rows = useMemo(() => buildRows(posts, { category }), [posts, category]);
   const hero = !searching ? rows[0]?.posts[0] : null;
+  const stale = state.checkedAt > 0 && Date.now() - state.checkedAt > 3 * 86400_000;
 
   const close = useCallback(() => setSelected(null), []);
   const searchFor = useCallback((q) => {
@@ -108,7 +113,10 @@ export default function Browse() {
     <>
       <header className="nav">
         <a className="logo" href="/" onClick={(e) => { e.preventDefault(); setQuery(""); setCategory(""); }}>
-          SCENE<span>FINDER</span>
+          <span className="logo-mark" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z" fill="currentColor" /></svg>
+          </span>
+          Scene<span>Finder</span>
         </a>
         <nav className="cats" aria-label="Kategori">
           <button type="button" className={!category ? "on" : ""} onClick={() => setCategory("")}>
@@ -126,13 +134,13 @@ export default function Browse() {
           ))}
         </nav>
         <label className="search">
-          <span aria-hidden="true">⌕</span>
+          <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M13 13l4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           <input
             ref={input}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Judul, aktor, mood, hashtag…  ( / )"
+            placeholder="Judul, aktor, mood, hashtag"
             aria-label="Cari scene"
             autoComplete="off"
           />
@@ -149,25 +157,12 @@ export default function Browse() {
 
         {status !== "loading" && posts.length === 0 && (
           <div className="state">
-            <h2>{status === "error" ? "Gagal mengambil data dari Instagram" : "Belum ada sumber"}</h2>
-            {state.sourceCount === 0 && status !== "error" ? (
-              <p>
-                Isi <code>akun.json</code> dengan username akun IG yang mau di-scrape, lalu deploy ulang.
-              </p>
-            ) : (
-              <>
-                <p>
-                  Instagram sering memblokir permintaan dari server (termasuk Vercel). Detail per sumber:
-                </p>
-                <ul>
-                  {state.errors.map((e, i) => (
-                    <li key={i}>
-                      <code>{e.source}</code> — {e.message}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
+            <h2>{status === "error" ? "Data gagal dimuat" : "Belum ada scene"}</h2>
+            <p>
+              {status === "error"
+                ? "Coba muat ulang halaman sebentar lagi."
+                : "Worker di VPS belum mengisi data. Pastikan akun sudah terdaftar di akun.json lalu jalankan worker/scrape.mjs."}
+            </p>
           </div>
         )}
 
@@ -207,15 +202,14 @@ export default function Browse() {
           </section>
         )}
 
-        {status === "ready" && state.errors.length > 0 && (
-          <p className="partial">
-            {state.errors.length} dari {state.sourceCount} sumber gagal dimuat: {state.errors.map((e) => e.source).join(", ")}
-          </p>
+        {status === "ready" && stale && (
+          <p className="partial">Data belum diperbarui sejak {timeAgo(state.checkedAt)}. Scraper mungkin sedang bermasalah.</p>
         )}
       </main>
 
       <footer className="foot">
-        Hanya alat pencari. Semua thumbnail dan konten milik kreatornya, klik kartu untuk membuka postingan aslinya di Instagram.
+        <span>Hanya alat pencari. Semua thumbnail dan konten milik kreatornya, klik kartu untuk membuka postingan aslinya di Instagram.</span>
+        {state.updatedAt > 0 && <span>Diperbarui {timeAgo(state.updatedAt)}</span>}
       </footer>
 
       <Modal post={selected} onClose={close} onSearch={searchFor} />

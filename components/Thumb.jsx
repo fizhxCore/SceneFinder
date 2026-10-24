@@ -8,7 +8,7 @@ export default function Thumb({ src, alt = "", className = "", eager = false }) 
   if (!src || bad) {
     return (
       <div className={`thumb-fallback ${className}`} aria-hidden="true">
-        ▶
+        <svg width="30" height="30" viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z" fill="currentColor" /></svg>
       </div>
     );
   }

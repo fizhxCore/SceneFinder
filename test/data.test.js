@@ -105,3 +105,31 @@ test("normalizeSources: daftar sederhana", () => {
   assert.equal(n.posts.length, 1);
   assert.deepEqual(normalizeSources({ accounts: [{ username: "x" }], posts: [] }).accounts[0].username, "x");
 });
+
+import { mergeFeeds, pruneFeed, shouldWrite, isRemote } from "../lib/archive.js";
+
+test("mergeFeeds: arsip lama dipertahankan, thumbnail lokal tidak ditimpa, post baru tercatat", () => {
+  const old = [{ id: "a", ts: 2, thumb: "/thumbs/a.webp", category: "K-Drama", tags: [], caption: "lama" }];
+  const inc = [
+    { id: "a", ts: 2, thumb: "https://cdn/a.jpg", category: "K-Pop", tags: ["x"], caption: "" },
+    { id: "b", ts: 5, thumb: "https://cdn/b.jpg", category: "K-Drama", tags: [] },
+  ];
+  const { posts, added } = mergeFeeds(old, inc);
+  assert.deepEqual(added, ["b"]);
+  assert.deepEqual(posts.map((p) => p.id), ["b", "a"]);
+  const a = posts.find((p) => p.id === "a");
+  assert.equal(a.thumb, "/thumbs/a.webp");
+  assert.equal(a.category, "K-Pop");
+  assert.equal(a.caption, "lama");
+  assert.equal(isRemote(posts[0].thumb), true);
+  assert.equal(isRemote(a.thumb), false);
+});
+
+test("pruneFeed & shouldWrite", () => {
+  const { kept, dropped } = pruneFeed([{ id: "1", ts: 1 }, { id: "2", ts: 3 }, { id: "3", ts: 2 }], 2);
+  assert.deepEqual(kept.map((p) => p.id), ["2", "3"]);
+  assert.deepEqual(dropped.map((p) => p.id), ["1"]);
+  assert.equal(shouldWrite({ added: 0, checkedAt: 1000, now: 2000 }), false);
+  assert.equal(shouldWrite({ added: 1, checkedAt: 1000, now: 2000 }), true);
+  assert.equal(shouldWrite({ added: 0, checkedAt: 0, now: 25 * 3600_000 }), true);
+});

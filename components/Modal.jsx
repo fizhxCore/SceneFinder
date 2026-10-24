@@ -41,7 +41,7 @@ export default function Modal({ post, onClose, onSearch }) {
     <div className="backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal" role="dialog" aria-modal="true" aria-label={`Detail scene dari ${post.username}`}>
         <button type="button" className="close" onClick={onClose} ref={closeBtn} aria-label="Tutup">
-          ✕
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
         </button>
         <div className="modal-media">
           <Thumb src={post.thumb} className="modal-img" eager />
@@ -50,8 +50,8 @@ export default function Modal({ post, onClose, onSearch }) {
           <div className="meta-line">
             <strong>@{post.username}</strong>
             {post.category && <span className="pill">{post.category}</span>}
-            <span>{post.kind === "reel" ? "Reel" : post.kind}</span>
-            {post.ts > 0 && <span>{timeAgo(post.ts)}</span>}
+            <span className="pill pill-soft">{post.kind === "reel" ? "Reel" : post.kind}</span>
+            {post.ts > 0 && <span className="pill pill-soft">{timeAgo(post.ts)}</span>}
           </div>
           <p className="caption">
             <Linkified text={post.caption || "(tanpa caption)"} />
@@ -66,10 +66,10 @@ export default function Modal({ post, onClose, onSearch }) {
             </div>
           )}
           <div className="actions">
-            <a className="btn btn-primary" href={post.url} target="_blank" rel="noopener noreferrer">
-              ▶ Buka di Instagram
+            <a className="btn btn-lime" href={post.url} target="_blank" rel="noopener noreferrer">
+              Buka di Instagram
             </a>
-            <button type="button" className="btn" onClick={() => onSearch(post.username)}>
+            <button type="button" className="btn btn-ghost" onClick={() => onSearch(post.username)}>
               Lainnya dari @{post.username}
             </button>
           </div>

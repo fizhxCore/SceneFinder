@@ -9,7 +9,7 @@ export function PosterCard({ post, onOpen }) {
   return (
     <button type="button" className="card" onClick={() => onOpen(post)} aria-label={`${title}, dari ${post.username}`}>
       <Thumb src={post.thumb} className="card-img" />
-      {post.kind !== "photo" && <span className="kind">{post.kind === "reel" ? "REEL" : post.kind.toUpperCase()}</span>}
+      {post.kind !== "photo" && <span className="kind">{post.kind === "reel" ? "Reel" : post.kind === "carousel" ? "Slide" : "Video"}</span>}
       <span className="card-info">
         <strong>{title}</strong>
         <small>@{post.username}</small>
@@ -30,7 +30,8 @@ export default function Row({ title, posts, onOpen, onTitleClick }) {
       <h2 className="row-title">
         {onTitleClick ? (
           <button type="button" onClick={onTitleClick} title="Lihat semua">
-            {title} <span aria-hidden="true">›</span>
+            {title}
+            <span className="more" aria-hidden="true">Lihat semua</span>
           </button>
         ) : (
           title
@@ -38,7 +39,7 @@ export default function Row({ title, posts, onOpen, onTitleClick }) {
       </h2>
       <div className="row-wrap">
         <button type="button" className="arrow left" onClick={() => slide(-1)} aria-label="Geser kiri">
-          ‹
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3L5 9l6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
         <div className="row-scroll" ref={scroller}>
           {posts.map((p) => (
@@ -46,7 +47,7 @@ export default function Row({ title, posts, onOpen, onTitleClick }) {
           ))}
         </div>
         <button type="button" className="arrow right" onClick={() => slide(1)} aria-label="Geser kanan">
-          ›
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M7 3l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
       </div>
     </section>

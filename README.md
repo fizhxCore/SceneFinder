@@ -17,12 +17,17 @@ Pencari scene K-Drama / K-Pop untuk bahan edit, tampilan ala aplikasi streaming.
 2. `npm install && npm run dev` untuk lokal, `npm test` untuk tes logika.
 3. Deploy ke Vercel: import repo GitHub-nya, tanpa env var apa pun.
 
-## Cara kerja
-- `GET /api/feed` mengambil semua sumber (paralel maksimal 4), menggabungkan dan membuang duplikat. Hasilnya di-cache CDN Vercel 1 jam (`s-maxage=3600`) dan data lama tetap dilayani saat diperbarui (`stale-while-revalidate`). Respons gagal total tidak dicache.
-- Pencarian, filter kategori, dan baris (terbaru, kategori, hashtag populer, per kreator) dihitung di browser dari data itu.
+## Cara kerja (versi VPS + GitHub)
+- **VPS** menjalankan `worker/scrape.mjs`: scrape akun di `akun.json` (satu per satu, jeda acak), kecilkan thumbnail jadi webp 640px ke `public/thumbs/`, gabungkan ke arsip `data/feed.json`, lalu `git commit && git push`.
+- **Vercel** deploy otomatis tiap ada push. `/api/feed` hanya membaca `data/feed.json` yang ikut ter-build, jadi tidak ada scrape saat runtime. VPS mati = data terakhir tetap tampil.
+- Aman: kalau semua sumber gagal (IP diblokir) data lama tidak ditimpa. Commit hanya bila ada post baru, plus satu "detak" per 24 jam supaya penanda "Diperbarui" jujur. Arsip dibatasi `MAX_POSTS` (default 3000).
+
+## Setup VPS
+1. `git clone` repo (pakai deploy key khusus repo ini yang punya akses write), lalu `npm install`.
+2. Tes sekali tanpa push: `NO_GIT=1 npm run scrape`.
+3. Jadwalkan di cron (tiap 4 jam): `0 */4 * * * /path/SceneFinder/worker/run.sh >> ~/scenefinder.log 2>&1`
 
 ## Batasan yang perlu diketahui
-- **Instagram sering memblokir IP datacenter, termasuk Vercel.** Kalau itu terjadi, halaman menampilkan galat per akun. Cadangan: jalankan di Pterodactyl (`npm run build && npm start`) atau pakai penyedia data pihak ketiga dengan mengganti `fetchAccountPosts` di `lib/instagram.js`.
-- Endpoint profil hanya memberi **±12 post terbaru per akun**. Post lama bisa ditambah lewat `posts`.
-- URL thumbnail Instagram kedaluwarsa dalam hitungan hari. Cache 1 jam membuatnya selalu segar; kalau gagal dimuat, kartu menampilkan placeholder.
-- `lib/instagram.js` mengadaptasi `instagram.direct` dari scrapr (MIT, (c) coflyn) memakai `fetch`, jadi tidak ada dependensi tambahan selain Next/React.
+- IP VPS juga bisa diblokir Instagram. Kalau log menunjukkan "meminta login", pertimbangkan proxy residential atau jeda lebih panjang.
+- Endpoint profil hanya memberi ±12 post terbaru per akun; arsip menumpuk seiring worker jalan.
+- `lib/instagram.js` mengadaptasi `instagram.direct` dari scrapr (MIT, (c) coflyn).
