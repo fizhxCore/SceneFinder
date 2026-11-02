@@ -49,9 +49,9 @@ export default function Modal({ post, onClose, onSearch }) {
         <div className="modal-body">
           <div className="meta-line">
             <strong>@{post.username}</strong>
-            {post.category && <span className="pill">{post.category}</span>}
-            <span className="pill pill-soft">{post.kind === "reel" ? "Reel" : post.kind}</span>
-            {post.ts > 0 && <span className="pill pill-soft">{timeAgo(post.ts)}</span>}
+            {post.category && <span className="tag tag-peach">{post.category}</span>}
+            <span className="tag">{post.kind === "reel" ? "Reel" : post.kind}</span>
+            {post.ts > 0 && <span className="tag">{timeAgo(post.ts)}</span>}
           </div>
           <p className="caption">
             <Linkified text={post.caption || "(tanpa caption)"} />
@@ -66,10 +66,10 @@ export default function Modal({ post, onClose, onSearch }) {
             </div>
           )}
           <div className="actions">
-            <a className="btn btn-lime" href={post.url} target="_blank" rel="noopener noreferrer">
+            <a className="cta cta-peach" href={post.url} target="_blank" rel="noopener noreferrer">
               Buka di Instagram
             </a>
-            <button type="button" className="btn btn-ghost" onClick={() => onSearch(post.username)}>
+            <button type="button" className="cta cta-dark" onClick={() => onSearch(post.username)}>
               Lainnya dari @{post.username}
             </button>
           </div>
