@@ -1,18 +1,23 @@
-// Worker VPS: scrape akun Instagram -> kecilkan thumbnail -> simpan ke repo -> commit & push.
-// Jalankan: node worker/scrape.mjs          (NO_GIT=1 untuk tes lokal tanpa commit)
+// Bot pengambil data: ambil post akun Instagram -> kecilkan thumbnail -> simpan ke repo -> commit & push.
+// Sumber data: RapidAPI kalau RAPIDAPI_KEY diisi (disarankan), kalau tidak scraping langsung (sering diblokir).
+// Jalankan: node worker/scrape.mjs          (NO_GIT=1 untuk tes lokal atau saat commit dilakukan pihak lain)
 import fs from "node:fs/promises";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { buildFeed } from "../lib/feed.js";
+import { buildFeed, normalizeSources } from "../lib/feed.js";
 import { fetchAccountPosts } from "../lib/instagram.js";
-import { mergeFeeds, pruneFeed, isRemote, thumbPath, shouldWrite } from "../lib/archive.js";
+import { createRapidFetcher, QuotaError } from "../lib/rapidapi.js";
+import { mergeFeeds, pruneFeed, isRemote, thumbPath, shouldWrite, pickAccounts } from "../lib/archive.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FEED = path.join(ROOT, "data/feed.json");
 const THUMBS = path.join(ROOT, "public/thumbs");
 const MAX_POSTS = Number(process.env.MAX_POSTS || 3000);
+const USE_RAPID = Boolean(process.env.RAPIDAPI_KEY);
+const MAX_CALLS = Number(process.env.RAPIDAPI_MAX_CALLS) || 0; // 0 = semua akun tiap run
+const SLOT_MS = (Number(process.env.ROTATE_EVERY_HOURS) || 24) * 3600_000;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -40,18 +45,35 @@ async function main() {
   const old = await readJson(FEED, { posts: [], checkedAt: 0, updatedAt: 0 });
   await fs.mkdir(THUMBS, { recursive: true });
 
-  // Jeda acak antar akun supaya tidak terlihat seperti bot; satu akun per waktu.
-  const fresh = await buildFeed(akun, {
-    concurrency: 1,
-    fetchAccountPosts: async (u) => {
-      await sleep(2000 + Math.random() * 4000);
-      return fetchAccountPosts(u);
-    },
-  });
+  // Pilih akun untuk run ini (bergilir kalau dibatasi) dan pilih sumber data.
+  const sources = normalizeSources(akun);
+  const accounts = USE_RAPID ? pickAccounts(sources.accounts, { limit: MAX_CALLS, slotMs: SLOT_MS }) : sources.accounts;
+  log(`sumber: ${USE_RAPID ? "RapidAPI" : "langsung ke Instagram"}, ${accounts.length}/${sources.accounts.length} akun run ini`);
+
+  const getAccount = USE_RAPID ? createRapidFetcher(process.env) : fetchAccountPosts;
+  let quotaHit = null; // kunci/kuota bermasalah: hentikan panggilan sisanya, jangan buang request
+
+  // Jeda acak antar akun; satu akun per waktu.
+  const fresh = await buildFeed(
+    { accounts, posts: sources.posts },
+    {
+      concurrency: 1,
+      fetchAccountPosts: async (u) => {
+        if (quotaHit) throw quotaHit;
+        await sleep(USE_RAPID ? 1200 + Math.random() * 800 : 2000 + Math.random() * 4000);
+        try {
+          return await getAccount(u);
+        } catch (e) {
+          if (e instanceof QuotaError) quotaHit = e;
+          throw e;
+        }
+      },
+    }
+  );
   log(`scrape: ${fresh.posts.length} post dari ${fresh.sourceCount} sumber, ${fresh.errors.length} galat`);
   fresh.errors.forEach((e) => log("  galat", e.source, e.message));
 
-  // Semua sumber gagal (mis. IP diblokir): jangan sentuh data lama.
+  // Semua sumber gagal (mis. IP diblokir, kuota habis): jangan sentuh data lama.
   if (fresh.sourceCount > 0 && fresh.posts.length === 0) {
     log("semua sumber gagal, data lama dibiarkan");
     process.exitCode = 1;
