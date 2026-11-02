@@ -1,0 +1,54 @@
+# Bot pengambil data: jalan terjadwal di GitHub (gratis), ambil post lewat RapidAPI, commit hasilnya.
+# Vercel deploy otomatis setelah commit. Tidak butuh VPS.
+#
+# Setup sekali saja di GitHub: Settings > Secrets and variables > Actions
+#   Secret   RAPIDAPI_KEY            kunci dari RapidAPI
+#   Variable RAPIDAPI_HOST           (opsional) host API yang kamu subscribe
+#   Variable RAPIDAPI_PATH           (opsional) path endpoint postingan akun
+#   Variable RAPIDAPI_PARAM          (opsional) nama parameter username
+#   Variable RAPIDAPI_MAX_CALLS      (opsional) batas akun per run, 0 = semua
+name: Ambil scene baru
+
+on:
+  schedule:
+    - cron: "0 1 * * *" # tiap hari 01:00 UTC (08:00 WIB). Makin sering = makin boros kuota RapidAPI
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Pasang dependensi
+        run: npm install --no-audit --no-fund
+      - name: Ambil data lewat RapidAPI
+        env:
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          RAPIDAPI_HOST: ${{ vars.RAPIDAPI_HOST }}
+          RAPIDAPI_PATH: ${{ vars.RAPIDAPI_PATH }}
+          RAPIDAPI_PARAM: ${{ vars.RAPIDAPI_PARAM }}
+          RAPIDAPI_MAX_CALLS: ${{ vars.RAPIDAPI_MAX_CALLS }}
+          NO_GIT: "1"
+        run: node worker/scrape.mjs
+      - name: Simpan hasil ke repo
+        run: |
+          git config user.name "scene-finder-bot"
+          git config user.email "scene-finder-bot@users.noreply.github.com"
+          git add data/feed.json public/thumbs
+          if git diff --cached --quiet; then
+            echo "tidak ada perubahan"
+          else
+            git commit -m "data: update scene (bot)"
+            git push
+          fi
