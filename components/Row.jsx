@@ -8,8 +8,10 @@ export function PosterCard({ post, onOpen }) {
   const title = firstLine(post.caption, 60) || `@${post.username}`;
   return (
     <button type="button" className="card" onClick={() => onOpen(post)} aria-label={`${title}, dari ${post.username}`}>
-      <Thumb src={post.thumb} className="card-img" />
-      {post.kind !== "photo" && <span className="kind">{post.kind === "reel" ? "Reel" : post.kind === "carousel" ? "Slide" : "Video"}</span>}
+      <span className="card-media">
+        <Thumb src={post.thumb} className="card-img" />
+        {post.kind !== "photo" && <span className="kind">{post.kind === "reel" ? "Reel" : post.kind === "carousel" ? "Slide" : "Video"}</span>}
+      </span>
       <span className="card-info">
         <strong>{title}</strong>
         <small>@{post.username}</small>
@@ -27,16 +29,14 @@ export default function Row({ title, posts, onOpen, onTitleClick }) {
 
   return (
     <section className="row" aria-label={title}>
-      <h2 className="row-title">
-        {onTitleClick ? (
-          <button type="button" onClick={onTitleClick} title="Lihat semua">
-            {title}
-            <span className="more" aria-hidden="true">Lihat semua</span>
+      <div className="row-head">
+        <h2 className="row-title">{title}</h2>
+        {onTitleClick && (
+          <button type="button" className="more" onClick={onTitleClick}>
+            Lihat semua
           </button>
-        ) : (
-          title
         )}
-      </h2>
+      </div>
       <div className="row-wrap">
         <button type="button" className="arrow left" onClick={() => slide(-1)} aria-label="Geser kiri">
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3L5 9l6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
