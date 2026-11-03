@@ -169,7 +169,15 @@ export default function Browse() {
 
   const categories = useMemo(() => categoriesOf(posts), [posts]);
   const creators = useMemo(() => countBy(posts, (p) => [p.username]), [posts]);
-  const rows = useMemo(() => buildRows(posts), [posts]);
+  const rows = useMemo(() => {
+    const seen = new Set();
+    return buildRows(posts).filter((r) => {
+      const key = r.posts.map((p) => p.id).join();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [posts]);
   const hero = rows[0]?.posts[0];
   const fresh = useMemo(() => posts.filter((p) => p.ts > Date.now() - 7 * 86400_000).length, [posts]);
   const results = useMemo(() => (searching ? searchPosts(posts, query) : []), [posts, query, searching]);
@@ -212,6 +220,14 @@ export default function Browse() {
             </span>
             SceneFinder
           </a>
+          {posts.length > 0 && (
+            <span className="count">
+              {posts.length.toLocaleString("id-ID")} scene{fresh > 0 && <b>+{fresh}</b>}
+            </span>
+          )}
+          <button type="button" className="top-btn" onClick={() => go("search")} aria-label="Cari scene">
+            <Icon name="search" size={20} />
+          </button>
           <label className="search top-search">
             <Icon name="search" size={18} />
             <input ref={input} type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari judul, aktor, hashtag" aria-label="Cari scene" autoComplete="off" />
@@ -239,11 +255,6 @@ export default function Browse() {
 
           {posts.length > 0 && current === "home" && (
             <>
-              <section className="intro" aria-label="Ringkasan">
-                <p className="intro-label">Scene tersimpan</p>
-                <p className="intro-num">{posts.length.toLocaleString("id-ID")}</p>
-                {fresh > 0 && <span className="tag tag-lilac">+{fresh} dalam 7 hari</span>}
-              </section>
               {hero && <Hero post={hero} onOpen={setSelected} />}
               <div className="rows">
                 {rows.map((r) => (
