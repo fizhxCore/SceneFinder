@@ -283,3 +283,33 @@ main { padding-top: 6px; }
 .login-field { gap: 6px; margin-top: 4px; font-size: 13px; }
 .login-field input { padding: 11px 16px; font-size: 15px; }
 .login-card .cta-ink { padding: 12px; font-size: 14.5px; }
+
+/* ---------- v5: perbaikan dari kritik ---------- */
+:root { --muted: #5f5f5a; }
+body { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+.foot { padding-bottom: 40px; }
+.cta-peach { background: var(--mint); } /* satu warna aksi utama */
+.dock-side button { font-size: 12px; color: #a3a39e; }
+
+.cat-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 10px; }
+.cat-tile { padding: 8px; border-radius: 28px; }
+.cat-media { aspect-ratio: 4 / 3; border-radius: 22px; }
+.cat-name { font-size: 17px; }
+.cat-meta { flex-direction: column; align-items: flex-start; gap: 6px; padding: 0 6px 6px; }
+.cat-after { margin-top: 28px; }
+
+.login-brand { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.login-card .logo-mark { width: 32px; height: 32px; }
+.pw { position: relative; display: block; width: 100%; }
+.pw input { padding-right: 108px; }
+.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; border-radius: 999px; background: #262626; color: #e6ece9; padding: 7px 12px; font-size: 12.5px; font-weight: 700; }
+.login-field input::placeholder { color: #8d9792; }
+.login-field input:focus-visible { outline: 2px solid var(--mint); outline-offset: 1px; }
+.login-card .cta-ink { background: var(--mint); }
+
+/* ---------- v6: dock ramping, 4 tab sejajar, Home tanpa tonjolan ---------- */
+body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+.dock { display: flex; gap: 2px; width: min(420px, calc(100% - 24px)); height: 64px; padding: 0 6px; border-radius: 32px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+.dock button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 52px; padding: 0; border: 0; border-radius: 26px; background: none; color: #a3a39e; font-size: 12px; font-weight: 600; }
+.dock button:not(.on):hover { color: var(--white); }
+.dock button.on { background: var(--mint); color: var(--ink); font-weight: 700; }
