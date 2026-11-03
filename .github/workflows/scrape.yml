@@ -37,7 +37,8 @@ jobs:
           RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
           RAPIDAPI_HOST: ${{ vars.RAPIDAPI_HOST }}
           RAPIDAPI_PATH: ${{ vars.RAPIDAPI_PATH }}
-          RAPIDAPI_PARAM: ${{ vars.RAPIDAPI_PARAM }}
+          RAPIDAPI_BODY_FIELD: ${{ vars.RAPIDAPI_BODY_FIELD }}
+          RAPIDAPI_AMOUNT: "12"
           RAPIDAPI_MAX_CALLS: ${{ vars.RAPIDAPI_MAX_CALLS }}
           NO_GIT: "1"
         run: node worker/scrape.mjs
