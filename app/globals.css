@@ -273,3 +273,13 @@ main { padding-top: 6px; }
 /* perbaikan HP: baris geser tidak boleh melebarkan halaman */
 .rows, .skeleton { grid-template-columns: minmax(0, 1fr); }
 .row { min-width: 0; }
+
+/* masuk: versi lebih kecil untuk HP */
+.login-card { width: min(320px, 100%); gap: 10px; padding: 20px 18px 18px; border-radius: 28px; }
+.login-card .logo-mark { width: 40px; height: 40px; }
+.login-card .logo-mark svg { width: 16px; height: 16px; }
+.login-card h1 { margin-top: 6px; font-size: 28px; }
+.login-card p { font-size: 13.5px; line-height: 1.4; }
+.login-field { gap: 6px; margin-top: 4px; font-size: 13px; }
+.login-field input { padding: 11px 16px; font-size: 15px; }
+.login-card .cta-ink { padding: 12px; font-size: 14.5px; }
