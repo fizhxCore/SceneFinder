@@ -51,20 +51,14 @@ function Skeleton() {
 }
 
 function Dock({ current, go }) {
-  const side = (ids) =>
-    ids.map((id) => (
-      <button type="button" key={id} className={current === id ? "on" : ""} onClick={() => go(id)} aria-current={current === id ? "page" : undefined}>
-        <Icon name={TABS[id].icon} size={22} />
-        <span>{TABS[id].label}</span>
-      </button>
-    ));
   return (
     <nav className="dock" aria-label="Menu utama">
-      <div className="dock-side">{side(["new", "cats"])}</div>
-      <button type="button" className={`dock-home${current === "home" ? " on" : ""}`} onClick={() => go("home")} aria-label="Home" aria-current={current === "home" ? "page" : undefined}>
-        <Icon name="home" size={30} />
-      </button>
-      <div className="dock-side">{side(["search", "creators"])}</div>
+      {["home", "new", "cats", "creators"].map((id) => (
+        <button type="button" key={id} className={current === id ? "on" : ""} onClick={() => go(id)} aria-current={current === id ? "page" : undefined}>
+          <Icon name={TABS[id].icon} size={22} />
+          <span>{TABS[id].label}</span>
+        </button>
+      ))}
     </nav>
   );
 }
@@ -222,7 +216,7 @@ export default function Browse() {
           </a>
           {posts.length > 0 && (
             <span className="count">
-              {posts.length.toLocaleString("id-ID")} scene{fresh > 0 && <b>+{fresh}</b>}
+              {posts.length.toLocaleString("id-ID")} scene{fresh > 0 && <b title="Ditambahkan dalam 7 hari terakhir">{fresh} baru</b>}
             </span>
           )}
           <button type="button" className="top-btn" onClick={() => go("search")} aria-label="Cari scene">
@@ -334,6 +328,8 @@ export default function Browse() {
                       </button>
                     ))}
                   </div>
+                  <h2 className="row-title cat-after">Terbaru</h2>
+                  {grid(posts.slice(0, 12))}
                 </>
               ) : (
                 <>
