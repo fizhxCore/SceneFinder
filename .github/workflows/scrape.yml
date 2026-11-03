@@ -1,4 +1,4 @@
-# Bot pengambil data: jalan terjadwal di GitHub (gratis), ambil post lewat RapidAPI, commit hasilnya.
+#Bot pengambil data: jalan terjadwal di GitHub (gratis), ambil post lewat RapidAPI, commit hasilnya.
 # Vercel deploy otomatis setelah commit. Tidak butuh VPS.
 #
 # Setup sekali saja di GitHub: Settings > Secrets and variables > Actions
