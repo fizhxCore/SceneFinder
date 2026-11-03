@@ -269,3 +269,7 @@ main { padding-top: 6px; }
 .login-field input:focus-visible { outline-color: var(--mint); }
 .login-card .cta-ink { background: var(--peach); color: var(--ink); padding: 16px; }
 .login-card .login-err { background: #3a1f1f; color: #ffd9d4; }
+
+/* perbaikan HP: baris geser tidak boleh melebarkan halaman */
+.rows, .skeleton { grid-template-columns: minmax(0, 1fr); }
+.row { min-width: 0; }
