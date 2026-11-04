@@ -7,6 +7,10 @@
 #   Variable RAPIDAPI_PATH           (opsional) path endpoint postingan akun
 #   Variable RAPIDAPI_PARAM          (opsional) nama parameter username
 #   Variable RAPIDAPI_MAX_CALLS      (opsional) batas akun per run, 0 = semua
+#   Secret   APIFY_TOKEN             (opsional) token Apify; bisa dipakai bersama atau menggantikan RapidAPI
+#   Variable APIFY_ACTOR             (opsional) default apify~instagram-post-scraper
+#   Variable APIFY_INPUT             (opsional) JSON input Actor, pakai {username} dan {amount}
+#   Variable SCRAPER_PROVIDER        (opsional) auto | rapidapi | apify | apify,rapidapi (urutan prioritas)
 name: Ambil scene baru
 
 on:
@@ -32,7 +36,7 @@ jobs:
           node-version: 20
       - name: Pasang dependensi
         run: npm install --no-audit --no-fund
-      - name: Ambil data lewat RapidAPI
+      - name: Ambil data (RapidAPI / Apify)
         env:
           RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
           RAPIDAPI_HOST: ${{ vars.RAPIDAPI_HOST }}
@@ -40,6 +44,11 @@ jobs:
           RAPIDAPI_BODY_FIELD: ${{ vars.RAPIDAPI_BODY_FIELD }}
           RAPIDAPI_AMOUNT: "12"
           RAPIDAPI_MAX_CALLS: ${{ vars.RAPIDAPI_MAX_CALLS }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          APIFY_ACTOR: ${{ vars.APIFY_ACTOR }}
+          APIFY_INPUT: ${{ vars.APIFY_INPUT }}
+          APIFY_AMOUNT: "12"
+          SCRAPER_PROVIDER: ${{ vars.SCRAPER_PROVIDER }}
           NO_GIT: "1"
         run: node worker/scrape.mjs
       - name: Simpan hasil ke repo
