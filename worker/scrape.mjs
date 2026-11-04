@@ -1,5 +1,5 @@
 // Bot pengambil data: ambil post akun Instagram -> kecilkan thumbnail -> simpan ke repo -> commit & push.
-// Sumber data: RapidAPI kalau RAPIDAPI_KEY diisi (disarankan), kalau tidak scraping langsung (sering diblokir).
+// Sumber data: RapidAPI dan/atau Apify (lihat SCRAPER_PROVIDER), kalau tidak ada kunci scraping langsung (sering diblokir).
 // Jalankan: node worker/scrape.mjs          (NO_GIT=1 untuk tes lokal atau saat commit dilakukan pihak lain)
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -7,16 +7,15 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { buildFeed, normalizeSources } from "../lib/feed.js";
-import { fetchAccountPosts } from "../lib/instagram.js";
-import { createRapidFetcher, QuotaError } from "../lib/rapidapi.js";
+import { QuotaError } from "../lib/rapidapi.js";
+import { buildProviders, createFetcher } from "../lib/providers.js";
 import { mergeFeeds, pruneFeed, isRemote, thumbPath, shouldWrite, pickAccounts } from "../lib/archive.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FEED = path.join(ROOT, "data/feed.json");
 const THUMBS = path.join(ROOT, "public/thumbs");
 const MAX_POSTS = Number(process.env.MAX_POSTS || 3000);
-const USE_RAPID = Boolean(process.env.RAPIDAPI_KEY);
-const MAX_CALLS = Number(process.env.RAPIDAPI_MAX_CALLS) || 0; // 0 = semua akun tiap run
+const MAX_CALLS = Number(process.env.MAX_CALLS || process.env.RAPIDAPI_MAX_CALLS) || 0; // 0 = semua akun tiap run
 const SLOT_MS = (Number(process.env.ROTATE_EVERY_HOURS) || 24) * 3600_000;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
@@ -47,10 +46,12 @@ async function main() {
 
   // Pilih akun untuk run ini (bergilir kalau dibatasi) dan pilih sumber data.
   const sources = normalizeSources(akun);
-  const accounts = USE_RAPID ? pickAccounts(sources.accounts, { limit: MAX_CALLS, slotMs: SLOT_MS }) : sources.accounts;
-  log(`sumber: ${USE_RAPID ? "RapidAPI" : "langsung ke Instagram"}, ${accounts.length}/${sources.accounts.length} akun run ini`);
+  const providers = buildProviders(process.env);
+  const useApi = providers.some((p) => p.api);
+  const accounts = useApi ? pickAccounts(sources.accounts, { limit: MAX_CALLS, slotMs: SLOT_MS }) : sources.accounts;
+  log(`sumber: ${providers.map((p) => p.name).join(" > ")}, ${accounts.length}/${sources.accounts.length} akun run ini`);
 
-  const getAccount = USE_RAPID ? createRapidFetcher(process.env) : fetchAccountPosts;
+  const getAccount = createFetcher(providers, { onDead: (name, e) => log(`  ${name} dilewati: ${e.message}`) });
   let quotaHit = null; // kunci/kuota bermasalah: hentikan panggilan sisanya, jangan buang request
 
   // Jeda acak antar akun; satu akun per waktu.
@@ -60,7 +61,7 @@ async function main() {
       concurrency: 1,
       fetchAccountPosts: async (u) => {
         if (quotaHit) throw quotaHit;
-        await sleep(USE_RAPID ? 1200 + Math.random() * 800 : 2000 + Math.random() * 4000);
+        await sleep(useApi ? 1200 + Math.random() * 800 : 2000 + Math.random() * 4000);
         try {
           return await getAccount(u);
         } catch (e) {
