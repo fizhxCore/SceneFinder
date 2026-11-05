@@ -2,10 +2,10 @@
 
 import { useRef } from "react";
 import Thumb from "./Thumb.jsx";
-import { firstLine } from "../lib/browse.js";
+import { prettyTitle } from "../lib/browse.js";
 
 export function PosterCard({ post, onOpen }) {
-  const title = firstLine(post.caption, 60) || `@${post.username}`;
+  const title = prettyTitle(post.caption, 60) || `@${post.username}`;
   return (
     <button type="button" className="card" onClick={() => onOpen(post)} aria-label={`${title}, dari ${post.username}`}>
       <span className="card-media">

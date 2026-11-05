@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Row, { PosterCard } from "./Row.jsx";
 import Modal from "./Modal.jsx";
 import Thumb from "./Thumb.jsx";
-import { buildRows, categoriesOf, countBy, firstLine, searchPosts, timeAgo } from "../lib/browse.js";
+import { buildRows, categoriesOf, countBy, firstLine, prettyTitle, searchPosts, timeAgo } from "../lib/browse.js";
 
 const ICONS = {
   home: <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
@@ -89,17 +89,17 @@ function Hero({ post, onOpen }) {
           {post.category && <span className="tag tag-lilac">{post.category}</span>}
           {post.ts > 0 && <span className="tag">{timeAgo(post.ts)}</span>}
         </p>
-        <h1>{firstLine(post.caption, 90) || `Scene dari @${post.username}`}</h1>
+        <h1>{prettyTitle(post.caption, 90) || `Scene dari @${post.username}`}</h1>
         {chips.length > 0 && <p className="hero-tags">{chips.map((c) => `#${c}`).join("  ")}</p>}
         <div className="trio">
           <a className="cta cta-peach" href={post.url} target="_blank" rel="noopener noreferrer">
             <Icon name="ext" size={18} />
             Buka di Instagram
           </a>
-          <button type="button" className="orb" onClick={() => onOpen(post)} aria-label="Lihat detail">
+          <button type="button" className="orb" onClick={() => onOpen(post)} aria-label="Lihat detail" title="Detail">
             <Icon name="info" size={22} />
           </button>
-          <button type="button" className="cta cta-white" onClick={share} aria-label={copied ? "Link tersalin" : "Bagikan"}>
+          <button type="button" className="cta cta-white" onClick={share} aria-label={copied ? "Link tersalin" : "Bagikan"} title="Bagikan">
             <Icon name="link" size={18} />
             <span className="lbl">{copied ? "Tersalin" : "Bagikan"}</span>
           </button>
@@ -215,9 +215,7 @@ export default function Browse() {
             SceneFinder
           </a>
           {posts.length > 0 && (
-            <span className="count">
-              {posts.length.toLocaleString("id-ID")} scene{fresh > 0 && <b title="Ditambahkan dalam 7 hari terakhir">{fresh} baru</b>}
-            </span>
+            <span className="count" title={`${posts.length} scene tersimpan`}>{fresh > 0 ? `${fresh} baru` : `${posts.length} scene`}</span>
           )}
           <button type="button" className="top-btn" onClick={() => go("search")} aria-label="Cari scene">
             <Icon name="search" size={20} />
