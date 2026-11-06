@@ -5,6 +5,9 @@ import { useState } from "react";
 // Gambar dari CDN Instagram. URL-nya kedaluwarsa, jadi kalau gagal tampilkan placeholder, bukan ikon rusak.
 export default function Thumb({ src, alt = "", className = "", eager = false }) {
   const [bad, setBad] = useState(false);
+  const [local, setLocal] = useState(false); // R2 gagal -> coba file di repo (kalau masih ada)
+  const base = (process.env.NEXT_PUBLIC_THUMB_BASE || "").replace(/\/$/, "");
+  const useR2 = Boolean(base) && String(src || "").startsWith("/thumbs/") && !local;
   if (!src || bad) {
     return (
       <div className={`thumb-fallback ${className}`} aria-hidden="true">
@@ -15,12 +18,12 @@ export default function Thumb({ src, alt = "", className = "", eager = false }) 
   return (
     <img
       className={className}
-      src={src}
+      src={useR2 ? base + src : src}
       alt={alt}
       loading={eager ? "eager" : "lazy"}
       decoding="async"
       referrerPolicy="no-referrer"
-      onError={() => setBad(true)}
+      onError={() => (Boolean(base) && !local && String(src).startsWith("/thumbs/") ? setLocal(true) : setBad(true))}
     />
   );
 }
