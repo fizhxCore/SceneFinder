@@ -10,6 +10,8 @@
 #   Secret   APIFY_TOKEN             (opsional) token Apify; bisa dipakai bersama atau menggantikan RapidAPI
 #   Variable APIFY_ACTOR             (opsional) default apify~instagram-post-scraper
 #   Variable APIFY_INPUT             (opsional) JSON input Actor, pakai {username} dan {amount}
+#   Variable ASSETS_REPO             (opsional) repo gambar, mis. fizhxCore/SceneFinder-thumbs
+#   Secret   ASSETS_TOKEN            token (Contents: write) untuk repo gambar
 #   Variable SCRAPER_PROVIDER        (opsional) auto | rapidapi | apify | apify,rapidapi (urutan prioritas)
 name: Ambil scene baru
 
@@ -31,6 +33,13 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Ambil repo gambar
+        if: ${{ vars.ASSETS_REPO != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ASSETS_REPO }}
+          token: ${{ secrets.ASSETS_TOKEN }}
+          path: assets
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -49,8 +58,24 @@ jobs:
           APIFY_INPUT: ${{ vars.APIFY_INPUT }}
           APIFY_AMOUNT: "12"
           SCRAPER_PROVIDER: ${{ vars.SCRAPER_PROVIDER }}
+          THUMBS_DIR: ${{ vars.ASSETS_REPO != '' && 'assets/thumbs' || '' }}
           NO_GIT: "1"
         run: node worker/scrape.mjs
+      - name: Simpan gambar ke repo gambar
+        if: ${{ vars.ASSETS_REPO != '' }}
+        working-directory: assets
+        run: |
+          git config user.name "scene-finder-bot"
+          git config user.email "scene-finder-bot@users.noreply.github.com"
+          mkdir -p thumbs
+          touch .nojekyll
+          git add -A .nojekyll thumbs
+          if git diff --cached --quiet; then
+            echo "tidak ada gambar baru"
+          else
+            git commit -m "thumbs: update (bot)"
+            git push
+          fi
       - name: Simpan hasil ke repo
         run: |
           git config user.name "scene-finder-bot"
