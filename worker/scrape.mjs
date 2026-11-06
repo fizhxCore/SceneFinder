@@ -13,8 +13,10 @@ import { mergeFeeds, pruneFeed, isRemote, thumbPath, shouldWrite, pickAccounts }
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FEED = path.join(ROOT, "data/feed.json");
-const THUMBS = path.join(ROOT, "public/thumbs");
-const MAX_POSTS = Number(process.env.MAX_POSTS || 3000);
+const LEGACY_THUMBS = path.join(ROOT, "public/thumbs");
+// THUMBS_DIR diisi (mis. assets/thumbs) => gambar disimpan di repo terpisah, bukan di repo utama.
+const THUMBS = process.env.THUMBS_DIR ? path.resolve(ROOT, process.env.THUMBS_DIR) : LEGACY_THUMBS;
+const MAX_POSTS = Number(process.env.MAX_POSTS || 1500);
 const MAX_CALLS = Number(process.env.MAX_CALLS || process.env.RAPIDAPI_MAX_CALLS) || 0; // 0 = semua akun tiap run
 const SLOT_MS = (Number(process.env.ROTATE_EVERY_HOURS) || 24) * 3600_000;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -35,14 +37,34 @@ async function saveThumb(post) {
   const res = await fetch(post.thumb, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(15000) });
   if (!res.ok) throw new Error(`thumbnail ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
-  await sharp(buf).resize({ width: 640, withoutEnlargement: true }).webp({ quality: 70 }).toFile(path.join(THUMBS, `${post.id}.webp`));
+  const webp = await sharp(buf).resize({ width: 480, withoutEnlargement: true }).webp({ quality: 60 }).toBuffer();
+  await fs.writeFile(path.join(THUMBS, `${post.id}.webp`), webp);
   return thumbPath(post.id);
+}
+
+// Pindahkan thumbnail lama dari public/thumbs (repo utama) ke folder gambar yang baru.
+async function migrateLegacy() {
+  if (path.resolve(THUMBS) === path.resolve(LEGACY_THUMBS)) return;
+  const files = (await fs.readdir(LEGACY_THUMBS).catch(() => [])).filter((f) => f.endsWith(".webp"));
+  let moved = 0;
+  for (const f of files) {
+    try {
+      await fs.copyFile(path.join(LEGACY_THUMBS, f), path.join(THUMBS, f));
+      await fs.rm(path.join(LEGACY_THUMBS, f));
+      moved++;
+    } catch (e) {
+      log("  gagal memindah", f, e.message);
+    }
+  }
+  if (files.length) log(`gambar lama dipindah: ${moved}/${files.length}`);
 }
 
 async function main() {
   const akun = await readJson(path.join(ROOT, "akun.json"), []);
   const old = await readJson(FEED, { posts: [], checkedAt: 0, updatedAt: 0 });
   await fs.mkdir(THUMBS, { recursive: true });
+  log(`gambar: ${path.relative(ROOT, THUMBS) || THUMBS}`);
+  await migrateLegacy();
 
   // Pilih akun untuk run ini (bergilir kalau dibatasi) dan pilih sumber data.
   const sources = normalizeSources(akun);
@@ -100,7 +122,9 @@ async function main() {
   posts = posts.filter((p) => !failed.has(p.id));
 
   const { kept, dropped } = pruneFeed(posts, MAX_POSTS);
-  for (const p of dropped) await fs.rm(path.join(THUMBS, `${p.id}.webp`), { force: true });
+  for (const p of dropped) {
+    await fs.rm(path.join(THUMBS, `${p.id}.webp`), { force: true });
+  }
 
   const now = Date.now();
   if (!shouldWrite({ added, dropped: dropped.length, checkedAt: old.checkedAt, now })) {
