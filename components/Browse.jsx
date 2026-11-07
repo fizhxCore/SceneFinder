@@ -63,9 +63,45 @@ function Dock({ current, go }) {
   );
 }
 
-function Hero({ post, onOpen }) {
+function HeroCarousel({ posts, onOpen }) {
+  const track = useRef(null);
+  const frame = useRef(0);
+  const [active, setActive] = useState(0);
   const [copied, setCopied] = useState(false);
-  const chips = [...new Set([...(post.tags || []), ...(post.hashtags || [])])].slice(0, 4);
+  const post = posts[Math.min(active, posts.length - 1)];
+
+  // Hitung kartu mana yang paling dekat tengah; jarak ke tengah dipakai CSS untuk mengecilkan dan meredupkan kartu samping.
+  const update = () => {
+    const el = track.current;
+    if (!el) return;
+    const mid = el.scrollLeft + el.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    Array.from(el.children).forEach((c, i) => {
+      const dist = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+      c.style.setProperty("--d", Math.min(dist / c.offsetWidth, 1.5).toFixed(3));
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    });
+    setActive(best);
+  };
+  const onScroll = () => {
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(update);
+  };
+  useEffect(() => {
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [posts]);
+
+  const go = (i) => {
+    const el = track.current;
+    const c = el?.children[i];
+    if (c) el.scrollTo({ left: c.offsetLeft - (el.clientWidth - c.offsetWidth) / 2, behavior: "smooth" });
+  };
 
   const share = async () => {
     try {
@@ -82,31 +118,43 @@ function Hero({ post, onOpen }) {
   };
 
   return (
-    <section className="hero">
-      <div className="hero-copy">
-        <p className="tag-line">
-          <span className="tag tag-peach">@{post.username}</span>
-          {post.category && <span className="tag tag-lilac">{post.category}</span>}
-          {post.ts > 0 && <span className="tag">{timeAgo(post.ts)}</span>}
-        </p>
-        <h1>{prettyTitle(post.caption, 90) || `Scene dari @${post.username}`}</h1>
-        {chips.length > 0 && <p className="hero-tags">{chips.map((c) => `#${c}`).join("  ")}</p>}
-        <div className="trio">
-          <a className="cta cta-peach" href={post.url} target="_blank" rel="noopener noreferrer">
-            <Icon name="ext" size={18} />
-            Buka di Instagram
-          </a>
-          <button type="button" className="orb" onClick={() => onOpen(post)} aria-label="Lihat detail" title="Detail">
-            <Icon name="info" size={22} />
+    <section className="hcar" aria-label="Scene terbaru">
+      <div className="hcar-track" ref={track} onScroll={onScroll}>
+        {posts.map((p, i) => (
+          <button
+            type="button"
+            key={p.id}
+            className={`hcard${i === active ? " on" : ""}`}
+            onClick={() => (i === active ? onOpen(p) : go(i))}
+            aria-label={i === active ? `Lihat detail ${prettyTitle(p.caption, 60)}` : `Tampilkan ${prettyTitle(p.caption, 60)}`}
+          >
+            <Thumb src={p.thumb} className="hcard-img" eager={i < 3} />
+            <span className="hcard-info">
+              <span className="hcard-title">{prettyTitle(p.caption, 90) || `Scene dari @${p.username}`}</span>
+              <span className="hcard-meta">
+                @{p.username}
+                {p.ts > 0 && ` · ${timeAgo(p.ts)}`}
+              </span>
+            </span>
           </button>
-          <button type="button" className="cta cta-white" onClick={share} aria-label={copied ? "Link tersalin" : "Bagikan"} title="Bagikan">
-            <Icon name="link" size={18} />
-            <span className="lbl">{copied ? "Tersalin" : "Bagikan"}</span>
-          </button>
-        </div>
+        ))}
       </div>
-      <div className="hero-poster">
-        <Thumb src={post.thumb} className="hero-img" eager />
+      <div className="hdots">
+        {posts.map((p, i) => (
+          <button type="button" key={p.id} className={i === active ? "on" : ""} onClick={() => go(i)} aria-label={`Slide ${i + 1}`} aria-current={i === active} />
+        ))}
+      </div>
+      <div className="hact">
+        <a className="cta hact-main" href={post.url} target="_blank" rel="noopener noreferrer">
+          <Icon name="ext" size={18} />
+          Buka di Instagram
+        </a>
+        <button type="button" className="hact-btn" onClick={() => onOpen(post)} aria-label="Lihat detail" title="Detail">
+          <Icon name="info" size={22} />
+        </button>
+        <button type="button" className="hact-btn" onClick={share} aria-label={copied ? "Link tersalin" : "Bagikan"} title={copied ? "Tersalin" : "Bagikan"}>
+          <Icon name="link" size={20} />
+        </button>
       </div>
     </section>
   );
@@ -172,7 +220,7 @@ export default function Browse() {
       return true;
     });
   }, [posts]);
-  const hero = rows[0]?.posts[0];
+  const heroPosts = rows[0]?.posts.slice(0, 6) || [];
   const fresh = useMemo(() => posts.filter((p) => p.ts > Date.now() - 7 * 86400_000).length, [posts]);
   const results = useMemo(() => (searching ? searchPosts(posts, query) : []), [posts, query, searching]);
   const categoryPosts = useMemo(() => (category ? searchPosts(posts, "", { category }) : []), [posts, category]);
@@ -245,7 +293,7 @@ export default function Browse() {
 
           {posts.length > 0 && current === "home" && (
             <>
-              {hero && <Hero post={hero} onOpen={setSelected} />}
+              {heroPosts.length > 0 && <HeroCarousel posts={heroPosts} onOpen={setSelected} />}
               <div className="rows">
                 {rows.map((r) => (
                   <Row key={r.id} title={r.title} posts={r.posts} onOpen={setSelected} onTitleClick={r.query ? () => searchFor(r.query) : undefined} />
