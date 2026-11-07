@@ -353,3 +353,9 @@ body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height
 /* ---------- v8: logo di halaman masuk ---------- */
 .login { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
 .login-logo { width: min(250px, 68vw); height: auto; }
+
+/* ---------- v9: logo kecil di header dan halaman masuk ---------- */
+.logo-img { width: 40px; height: auto; flex: none; }
+.login-head { display: flex; align-items: center; gap: 14px; }
+.login-head h1 { margin: 0; }
+.login-logo { width: 84px; height: auto; flex: none; }
