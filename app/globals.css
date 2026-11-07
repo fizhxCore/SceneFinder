@@ -359,3 +359,21 @@ body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height
 .login-head { display: flex; align-items: center; gap: 14px; }
 .login-head h1 { margin: 0; }
 .login-logo { width: 84px; height: auto; flex: none; }
+
+/* ---------- v10: hero jadi carousel (kartu tengah besar, samping mengecil) ---------- */
+.hcar { --hw: clamp(210px, 66vw, 290px); margin-top: 10px; }
+.hcar-track { position: relative; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px calc((100% - var(--hw)) / 2) 14px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.hcar-track::-webkit-scrollbar { display: none; }
+.hcard { position: relative; flex: 0 0 var(--hw); aspect-ratio: 3 / 4; padding: 0; border: 0; border-radius: 26px; overflow: hidden; background: var(--ink); color: var(--white); text-align: left; cursor: pointer; scroll-snap-align: center; transform: scale(calc(1 - 0.12 * min(var(--d, 0), 1))); opacity: calc(1 - 0.5 * min(var(--d, 0), 1)); transition: transform .18s ease, opacity .18s ease; }
+.hcard .hcard-img, .hcard .thumb-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hcard::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, .88) 4%, rgba(0, 0, 0, .25) 45%, rgba(0, 0, 0, 0) 70%); pointer-events: none; }
+.hcard-info { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 16px; }
+.hcard-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 17px; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; }
+.hcard-meta { font-size: 12.5px; font-weight: 600; color: #d9e6df; }
+.hdots { display: flex; justify-content: center; gap: 6px; padding: 2px 0 12px; }
+.hdots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: #b9b9b3; transition: width .2s ease, background .2s ease; }
+.hdots button.on { width: 22px; background: var(--ink); }
+.hact { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.hact-main { background: var(--ink); color: var(--white); padding: 14px 22px; }
+.hact-btn { display: grid; place-items: center; width: 50px; height: 50px; border: 0; border-radius: 50%; background: var(--white); color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .hcard, .hdots button { transition: none; } }
