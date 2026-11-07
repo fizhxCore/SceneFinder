@@ -349,3 +349,7 @@ body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height
 .readmore { align-self: flex-start; padding: 6px 0; border: 0; background: none; color: var(--mint); font-weight: 700; }
 .linkpill { display: inline-block; padding: 3px 12px; border-radius: 999px; background: #ffffff1f; color: var(--mint); font-weight: 700; text-decoration: none; }
 .actions .cta { flex: 1 1 100%; justify-content: center; text-align: center; }
+
+/* ---------- v8: logo di halaman masuk ---------- */
+.login { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.login-logo { width: min(250px, 68vw); height: auto; }
