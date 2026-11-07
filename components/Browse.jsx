@@ -209,9 +209,7 @@ export default function Browse() {
       <div className="page">
         <header className="top">
           <a className="logo" href="/" onClick={(e) => { e.preventDefault(); go("home"); }}>
-            <span className="logo-mark" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z" fill="currentColor" /></svg>
-            </span>
+            <img className="logo-img" src="/logo-sm.png" alt="" width="46" height="39" />
             SceneFinder
           </a>
           {posts.length > 0 && (
