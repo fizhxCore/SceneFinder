@@ -3,7 +3,7 @@ import { COOKIE, verifyToken } from "./lib/auth.js";
 
 // Semua halaman, /api/feed, dan thumbnail butuh cookie masuk. Halaman login, robots.txt, dan aset Next dikecualikan.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|login|api/login).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|login|api/login|logo.png|icon.png|apple-icon.png).*)"],
 };
 
 export async function middleware(req) {
