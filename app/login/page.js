@@ -6,13 +6,8 @@ export default async function Login({ searchParams }) {
   const sp = await searchParams;
   return (
     <main className="login">
+      <img className="login-logo" src="/logo.png" alt="SceneFinder" width="640" height="539" />
       <form className="login-card" method="post" action="/api/login">
-        <div className="login-brand">
-          <span className="logo-mark" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z" fill="currentColor" /></svg>
-          </span>
-          SceneFinder
-        </div>
         <h1>Masuk</h1>
         <p>Cari scene K-Drama untuk bahan edit. Masukkan sandi untuk lanjut.</p>
         <PasswordField />
