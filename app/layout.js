@@ -12,9 +12,12 @@ export const metadata = {
 
 export const viewport = { themeColor: "#E9E9E6", viewportFit: "cover" };
 
+const THUMB_BASE = (process.env.NEXT_PUBLIC_THUMB_BASE || "").replace(/\/$/, "").replace(/(https?:\/\/[^/]+).*/, "$1");
+
 export default function RootLayout({ children }) {
   return (
     <html lang="id" className={font.variable}>
+      <head>{THUMB_BASE && <link rel="preconnect" href={THUMB_BASE} />}</head>
       <body>{children}</body>
     </html>
   );
