@@ -19,6 +19,11 @@ on:
   schedule:
     - cron: "0 1 * * *" # tiap hari 01:00 UTC (08:00 WIB). Makin sering = makin boros kuota RapidAPI
   workflow_dispatch:
+    inputs:
+      url:
+        description: "Opsional: link postingan Instagram yang mau ditambahkan (dari halaman admin)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -59,6 +64,8 @@ jobs:
           APIFY_AMOUNT: "12"
           SCRAPER_PROVIDER: ${{ vars.SCRAPER_PROVIDER }}
           THUMBS_DIR: ${{ vars.ASSETS_REPO != '' && 'assets/thumbs' || '' }}
+          ADD_URL: ${{ inputs.url }}
+          APIFY_POST_ACTOR: ${{ vars.APIFY_POST_ACTOR }}
           NO_GIT: "1"
         run: node worker/scrape.mjs
       - name: Simpan gambar ke repo gambar
