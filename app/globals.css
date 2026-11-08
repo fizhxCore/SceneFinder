@@ -386,3 +386,8 @@ body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height
 .top { background: color-mix(in srgb, var(--fog) 94%, transparent); backdrop-filter: none; -webkit-backdrop-filter: none; }
 .dock { box-shadow: 0 6px 16px rgba(0, 0, 0, .18); will-change: transform; transform: translateZ(0); }
 body::after { transform: translateZ(0); }
+
+/* ---------- v12: halaman admin ---------- */
+.admin-ok { margin: 0; padding: 12px 14px; border-radius: 16px; background: #1d3a30; color: #c9f0df; font-size: 13.5px; line-height: 1.4; }
+.admin-back { align-self: center; padding: 6px 4px; color: #a9b5af; font-size: 13.5px; font-weight: 600; text-decoration: none; }
+.login-card .cta-ink:disabled { opacity: .6; }
