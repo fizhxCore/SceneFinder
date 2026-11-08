@@ -1,7 +1,7 @@
-import { Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const font = Hanken_Grotesk({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font", display: "swap" });
+// Font dimuat lewat <link> saat halaman dibuka, bukan saat build, supaya build tidak gagal kalau Google Fonts bermasalah.
+const FONT_CSS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap";
 
 export const metadata = {
   title: "Scene Finder",
@@ -16,8 +16,13 @@ const THUMB_BASE = (process.env.NEXT_PUBLIC_THUMB_BASE || "").replace(/\/$/, "")
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id" className={font.variable}>
-      <head>{THUMB_BASE && <link rel="preconnect" href={THUMB_BASE} />}</head>
+    <html lang="id">
+      <head>
+        {THUMB_BASE && <link rel="preconnect" href={THUMB_BASE} />}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="stylesheet" href={FONT_CSS} />
+      </head>
       <body>{children}</body>
     </html>
   );
