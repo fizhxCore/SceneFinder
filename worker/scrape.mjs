@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { buildFeed, normalizeSources } from "../lib/feed.js";
 import { QuotaError } from "../lib/rapidapi.js";
+import { fetchPostApify } from "../lib/apify.js";
+import { shortcodeFromUrl } from "../lib/instagram.js";
 import { buildProviders, createFetcher } from "../lib/providers.js";
 import { mergeFeeds, pruneFeed, isRemote, thumbPath, shouldWrite, pickAccounts } from "../lib/archive.js";
 
@@ -68,9 +70,13 @@ async function main() {
 
   // Pilih akun untuk run ini (bergilir kalau dibatasi) dan pilih sumber data.
   const sources = normalizeSources(akun);
+  const ADD_URL = String(process.env.ADD_URL || "").trim(); // diisi dari halaman admin: tambah satu post saja
+  const addMode = Boolean(ADD_URL);
+  if (addMode && !shortcodeFromUrl(ADD_URL)) throw new Error(`Link tidak dikenali: ${ADD_URL}`);
+  if (addMode && !process.env.APIFY_TOKEN) log("peringatan: APIFY_TOKEN kosong, mengambil langsung dari Instagram (sering diblokir)");
   const providers = buildProviders(process.env);
   const useApi = providers.some((p) => p.api);
-  const accounts = useApi ? pickAccounts(sources.accounts, { limit: MAX_CALLS, slotMs: SLOT_MS }) : sources.accounts;
+  const accounts = addMode ? [] : useApi ? pickAccounts(sources.accounts, { limit: MAX_CALLS, slotMs: SLOT_MS }) : sources.accounts;
   log(`sumber: ${providers.map((p) => p.name).join(" > ")}, ${accounts.length}/${sources.accounts.length} akun run ini`);
 
   const getAccount = createFetcher(providers, { onDead: (name, e) => log(`  ${name} dilewati: ${e.message}`) });
@@ -78,9 +84,10 @@ async function main() {
 
   // Jeda acak antar akun; satu akun per waktu.
   const fresh = await buildFeed(
-    { accounts, posts: sources.posts },
+    { accounts, posts: addMode ? [{ url: ADD_URL, manual: true }] : sources.posts },
     {
       concurrency: 1,
+      fetchPostByUrl: process.env.APIFY_TOKEN ? (u) => fetchPostApify(u, { token: process.env.APIFY_TOKEN, actor: process.env.APIFY_POST_ACTOR }) : undefined,
       fetchAccountPosts: async (u) => {
         if (quotaHit) throw quotaHit;
         await sleep(useApi ? 1200 + Math.random() * 800 : 2000 + Math.random() * 4000);
@@ -103,6 +110,15 @@ async function main() {
     return;
   }
 
+  if (addMode) {
+    const have = new Set(old.posts.map((p) => p.id));
+    fresh.posts = fresh.posts.filter((p) => !have.has(p.id));
+    if (fresh.posts.length === 0) return log("post itu sudah ada, tidak ada yang ditambah");
+    for (const p of fresh.posts) {
+      const acc = sources.accounts.find((a) => a.username.toLowerCase() === String(p.username).toLowerCase());
+      p.category = acc?.category || "Lainnya";
+    }
+  }
   const merged = mergeFeeds(old.posts, fresh.posts);
   let posts = merged.posts;
 
