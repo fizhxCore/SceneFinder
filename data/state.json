@@ -1,0 +1,24 @@
+{
+ "accounts": {
+  "xkdramapacks": {
+   "lastOk": 0,
+   "lastTry": 1794524304428,
+   "fails": 1
+  },
+  "taedae.scp": {
+   "lastOk": 0,
+   "lastTry": 1794524304428,
+   "fails": 1
+  },
+  "cdrmscp": {
+   "lastOk": 1794524304428,
+   "lastTry": 1794524304428,
+   "fails": 0
+  },
+  "drxmasceess": {
+   "lastOk": 0,
+   "lastTry": 1794524304428,
+   "fails": 1
+  }
+ }
+}
