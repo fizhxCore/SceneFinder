@@ -2,13 +2,13 @@
  "accounts": {
   "xkdramapacks": {
    "lastOk": 0,
-   "lastTry": 1794524304428,
-   "fails": 1
+   "lastTry": 1794524471606,
+   "fails": 2
   },
   "taedae.scp": {
    "lastOk": 0,
-   "lastTry": 1794524304428,
-   "fails": 1
+   "lastTry": 1794524471606,
+   "fails": 2
   },
   "cdrmscp": {
    "lastOk": 1794524304428,
@@ -17,8 +17,13 @@
   },
   "drxmasceess": {
    "lastOk": 0,
-   "lastTry": 1794524304428,
-   "fails": 1
+   "lastTry": 1794524471606,
+   "fails": 2
+  },
+  "kdscnepacks": {
+   "lastOk": 1794524471606,
+   "lastTry": 1794524471606,
+   "fails": 0
   }
  }
 }
