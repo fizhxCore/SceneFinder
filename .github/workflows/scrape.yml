@@ -12,6 +12,7 @@
 #   Variable APIFY_INPUT             (opsional) JSON input Actor, pakai {username} dan {amount}
 #   Variable ASSETS_REPO             (opsional) repo gambar, mis. fizhxCore/SceneFinder-thumbs
 #   Secret   ASSETS_TOKEN            token (Contents: write) untuk repo gambar
+#   Variable COMMIT_NAME / COMMIT_EMAIL (opsional) identitas commit di repo utama; wajib milik pemilik akun kalau repo private di Vercel Hobby
 #   Variable SCRAPER_PROVIDER        (opsional) auto | rapidapi | apify | apify,rapidapi (urutan prioritas)
 name: Ambil scene baru
 
@@ -85,9 +86,9 @@ jobs:
           fi
       - name: Simpan hasil ke repo
         run: |
-          git config user.name "scene-finder-bot"
-          git config user.email "scene-finder-bot@users.noreply.github.com"
-          git add data/feed.json public/thumbs
+          git config user.name "${{ vars.COMMIT_NAME || 'scene-finder-bot' }}"
+          git config user.email "${{ vars.COMMIT_EMAIL || 'scene-finder-bot@users.noreply.github.com' }}"
+          git add data public/thumbs
           if git diff --cached --quiet; then
             echo "tidak ada perubahan"
           else
