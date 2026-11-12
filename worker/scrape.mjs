@@ -11,7 +11,7 @@ import { QuotaError } from "../lib/rapidapi.js";
 import { fetchPostApify } from "../lib/apify.js";
 import { shortcodeFromUrl } from "../lib/instagram.js";
 import { buildProviders, createFetcher } from "../lib/providers.js";
-import { mergeFeeds, pruneFeed, isRemote, thumbPath, shouldWrite, pickAccounts } from "../lib/archive.js";
+import { mergeFeeds, pruneFeed, isRemote, thumbPath, shouldWrite, pickAccountsByState, updateAccountState } from "../lib/archive.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FEED = path.join(ROOT, "data/feed.json");
@@ -64,6 +64,8 @@ async function migrateLegacy() {
 async function main() {
   const akun = await readJson(path.join(ROOT, "akun.json"), []);
   const old = await readJson(FEED, { posts: [], checkedAt: 0, updatedAt: 0 });
+  const STATE = path.join(ROOT, "data/state.json"); // riwayat pengambilan per akun (kecil, terpisah dari feed.json)
+  const state = (await readJson(STATE, { accounts: {} })).accounts || {};
   await fs.mkdir(THUMBS, { recursive: true });
   log(`gambar: ${path.relative(ROOT, THUMBS) || THUMBS}`);
   await migrateLegacy();
@@ -76,10 +78,11 @@ async function main() {
   if (addMode && !process.env.APIFY_TOKEN) log("peringatan: APIFY_TOKEN kosong, mengambil langsung dari Instagram (sering diblokir)");
   const providers = buildProviders(process.env);
   const useApi = providers.some((p) => p.api);
-  const accounts = addMode ? [] : useApi ? pickAccounts(sources.accounts, { limit: MAX_CALLS, slotMs: SLOT_MS }) : sources.accounts;
+  const accounts = addMode ? [] : useApi ? pickAccountsByState(sources.accounts, state, { limit: MAX_CALLS }) : sources.accounts;
   log(`sumber: ${providers.map((p) => p.name).join(" > ")}, ${accounts.length}/${sources.accounts.length} akun run ini`);
 
   const getAccount = createFetcher(providers, { onDead: (name, e) => log(`  ${name} dilewati: ${e.message}`) });
+  const skipped = new Set(); // akun yang tidak sempat dicoba karena kunci/kredit bermasalah
   let quotaHit = null; // kunci/kuota bermasalah: hentikan panggilan sisanya, jangan buang request
 
   // Jeda acak antar akun; satu akun per waktu.
@@ -89,7 +92,10 @@ async function main() {
       concurrency: 1,
       fetchPostByUrl: process.env.APIFY_TOKEN ? (u) => fetchPostApify(u, { token: process.env.APIFY_TOKEN, actor: process.env.APIFY_POST_ACTOR }) : undefined,
       fetchAccountPosts: async (u) => {
-        if (quotaHit) throw quotaHit;
+        if (quotaHit) {
+          skipped.add(String(u).toLowerCase());
+          throw quotaHit;
+        }
         await sleep(useApi ? 1200 + Math.random() * 800 : 2000 + Math.random() * 4000);
         try {
           return await getAccount(u);
@@ -102,6 +108,16 @@ async function main() {
   );
   log(`scrape: ${fresh.posts.length} post dari ${fresh.sourceCount} sumber, ${fresh.errors.length} galat`);
   fresh.errors.forEach((e) => log("  galat", e.source, e.message));
+
+  // Catat akun mana yang berhasil/gagal supaya run berikutnya mendahulukan yang paling lama belum berhasil.
+  if (!addMode && accounts.length) {
+    const failedKeys = new Set(fresh.errors.map((e) => String(e.source).replace(/^@/, "").toLowerCase()));
+    const attempted = accounts.filter((a) => !skipped.has(a.username.toLowerCase()));
+    const next = updateAccountState(state, attempted, failedKeys, Date.now());
+    const keep = new Set(sources.accounts.map((a) => a.username.toLowerCase()));
+    for (const k of Object.keys(next)) if (!keep.has(k)) delete next[k];
+    await fs.writeFile(STATE, JSON.stringify({ accounts: next }, null, 1) + "\n");
+  }
 
   // Semua sumber gagal (mis. IP diblokir, kuota habis): jangan sentuh data lama.
   if (fresh.sourceCount > 0 && fresh.posts.length === 0) {
@@ -159,7 +175,7 @@ async function main() {
   log(`ditulis: ${kept.length} post (${added} baru, ${dropped.length} dibuang)`);
 
   if (process.env.NO_GIT) return;
-  git("add", "data/feed.json", "public/thumbs");
+  git("add", "data", "public/thumbs");
   try {
     git("diff", "--cached", "--quiet");
     log("tidak ada perubahan git");
