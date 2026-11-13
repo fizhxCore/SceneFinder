@@ -2,48 +2,83 @@
  "accounts": {
   "xkdramapacks": {
    "lastOk": 0,
-   "lastTry": 1794524471606,
-   "fails": 2
+   "lastTry": 1794544518565,
+   "fails": 3
   },
   "taedae.scp": {
    "lastOk": 0,
-   "lastTry": 1794524471606,
-   "fails": 2
+   "lastTry": 1794544518565,
+   "fails": 3
   },
   "cdrmscp": {
-   "lastOk": 1794524304428,
-   "lastTry": 1794524304428,
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
    "fails": 0
   },
   "drxmasceess": {
    "lastOk": 0,
-   "lastTry": 1794524471606,
-   "fails": 2
+   "lastTry": 1794544518565,
+   "fails": 3
   },
   "kdscnepacks": {
-   "lastOk": 1794524471606,
-   "lastTry": 1794524471606,
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
    "fails": 0
   },
   "luverclip": {
    "lastOk": 0,
-   "lastTry": 1794543982797,
-   "fails": 1
+   "lastTry": 1794544518565,
+   "fails": 2
   },
   "jlvrrpacks": {
    "lastOk": 0,
-   "lastTry": 1794543982797,
-   "fails": 1
+   "lastTry": 1794544518565,
+   "fails": 2
   },
   "xkdramascenes": {
-   "lastOk": 0,
-   "lastTry": 1794543982797,
-   "fails": 1
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
+   "fails": 0
   },
   "delmscene": {
-   "lastOk": 1794543982797,
-   "lastTry": 1794543982797,
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
    "fails": 0
+  },
+  "allscpdramas": {
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
+   "fails": 0
+  },
+  "blvnscenes": {
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
+   "fails": 0
+  },
+  "baldy.scp": {
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
+   "fails": 0
+  },
+  "h2hfiles": {
+   "lastOk": 0,
+   "lastTry": 1794544518565,
+   "fails": 1
+  },
+  "jadorecs": {
+   "lastOk": 0,
+   "lastTry": 1794544518565,
+   "fails": 1
+  },
+  "xkactorsscps": {
+   "lastOk": 1794544518565,
+   "lastTry": 1794544518565,
+   "fails": 0
+  },
+  "powascp": {
+   "lastOk": 0,
+   "lastTry": 1794544518565,
+   "fails": 1
   }
  }
 }
