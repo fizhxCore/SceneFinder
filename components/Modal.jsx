@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Thumb from "./Thumb.jsx";
-import { prettyTitle, timeAgo } from "../lib/browse.js";
+import { firstLine, prettyTitle, timeAgo } from "../lib/browse.js";
 
 function shortLink(u) {
   try {
@@ -52,7 +52,11 @@ export default function Modal({ post, onClose, onSearch, saved = false, onSave }
   if (!post) return null;
   const chips = [...new Set([...(post.tags || []).map((t) => t.toLowerCase()), ...tagsFrom(post.caption)])];
   const caption = post.caption || "(tanpa caption)";
-  const long = caption.length > 220 || caption.split("\n").length > 5;
+  // Judul diambil dari baris pertama caption; kalau baris itu sama persis dengan judul, jangan ditampilkan dua kali.
+  const lines = caption.split("\n");
+  const dup = lines.length > 1 && lines[0].trim().toLowerCase() === firstLine(post.caption, 90).toLowerCase();
+  const body = dup ? lines.slice(1).join("\n").replace(/^\s+/, "") : caption;
+  const long = body.length > 220 || caption.split("\n").length > 5;
 
   return (
     <div className="backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
@@ -82,7 +86,7 @@ export default function Modal({ post, onClose, onSearch, saved = false, onSave }
         </div>
         <div className="modal-body">
           <p className={`caption${open ? "" : " clamp"}`}>
-            <Linkified text={caption} />
+            <Linkified text={body} />
           </p>
           {long && (
             <button type="button" className="readmore" onClick={() => setOpen((v) => !v)}>
