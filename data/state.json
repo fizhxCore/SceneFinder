@@ -2,13 +2,13 @@
  "accounts": {
   "xkdramapacks": {
    "lastOk": 0,
-   "lastTry": 1794544518565,
-   "fails": 3
+   "lastTry": 1794731684633,
+   "fails": 4
   },
   "taedae.scp": {
    "lastOk": 0,
-   "lastTry": 1794544518565,
-   "fails": 3
+   "lastTry": 1794731684633,
+   "fails": 4
   },
   "cdrmscp": {
    "lastOk": 1794544518565,
@@ -62,13 +62,13 @@
   },
   "h2hfiles": {
    "lastOk": 0,
-   "lastTry": 1794544518565,
-   "fails": 1
+   "lastTry": 1794731684633,
+   "fails": 2
   },
   "jadorecs": {
    "lastOk": 0,
-   "lastTry": 1794544518565,
-   "fails": 1
+   "lastTry": 1794731684633,
+   "fails": 2
   },
   "xkactorsscps": {
    "lastOk": 1794544518565,
@@ -76,9 +76,34 @@
    "fails": 0
   },
   "powascp": {
-   "lastOk": 0,
-   "lastTry": 1794544518565,
-   "fails": 1
+   "lastOk": 1794731684633,
+   "lastTry": 1794731684633,
+   "fails": 0
+  },
+  "oasisadiespacks": {
+   "lastOk": 1794731684633,
+   "lastTry": 1794731684633,
+   "fails": 0
+  },
+  "mqclaepacks": {
+   "lastOk": 1794731684633,
+   "lastTry": 1794731684633,
+   "fails": 0
+  },
+  "h2hclips": {
+   "lastOk": 1794731684633,
+   "lastTry": 1794731684633,
+   "fails": 0
+  },
+  "seowclips": {
+   "lastOk": 1794731684633,
+   "lastTry": 1794731684633,
+   "fails": 0
+  },
+  "hrtscps": {
+   "lastOk": 1794731684633,
+   "lastTry": 1794731684633,
+   "fails": 0
   }
  }
 }
