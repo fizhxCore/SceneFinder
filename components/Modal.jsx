@@ -31,7 +31,7 @@ function Linkified({ text }) {
 // Hashtag dibaca ulang dari caption tanpa URL, supaya potongan kunci link tidak jadi "tag".
 const tagsFrom = (c) => (String(c || "").replace(/https?:\/\/\S+/g, " ").match(/#[\p{L}\p{N}_]+/gu) || []).map((h) => h.slice(1).toLowerCase());
 
-export default function Modal({ post, onClose, onSearch }) {
+export default function Modal({ post, onClose, onSearch, saved = false, onSave }) {
   const closeBtn = useRef(null);
   const [open, setOpen] = useState(false);
 
@@ -61,6 +61,13 @@ export default function Modal({ post, onClose, onSearch }) {
         <button type="button" className="close" onClick={onClose} ref={closeBtn} aria-label="Tutup">
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
         </button>
+        {onSave && (
+          <button type="button" className="star" onClick={() => onSave(post)} aria-pressed={saved} aria-label={saved ? "Ubah map penyimpanan" : "Simpan ke map"}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z" />
+            </svg>
+          </button>
+        )}
         <div className="sheet-head">
           <div className="sheet-thumb"><Thumb src={post.thumb} className="modal-img" eager /></div>
           <div className="sheet-info">

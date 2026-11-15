@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Row, { PosterCard } from "./Row.jsx";
 import Modal from "./Modal.jsx";
+import FavPage from "./FavPage.jsx";
+import MapPicker from "./MapPicker.jsx";
+import useMaps from "./useMaps.js";
 import Thumb from "./Thumb.jsx";
 import { buildRows, categoriesOf, countBy, firstLine, prettyTitle, searchPosts, timeAgo } from "../lib/browse.js";
 
@@ -13,6 +16,7 @@ const ICONS = {
   cats: <><rect x="3.5" y="3.5" width="7" height="7" rx="2" /><rect x="13.5" y="3.5" width="7" height="7" rx="2" /><rect x="3.5" y="13.5" width="7" height="7" rx="2" /><rect x="13.5" y="13.5" width="7" height="7" rx="2" /></>,
   creators: <><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></>,
   ext: <path d="M7 17L17 7M8 7h9v9" />,
+  star: <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z" />,
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>,
   link: <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
 };
@@ -31,6 +35,7 @@ const TABS = {
   new: { label: "Terbaru", icon: "fresh" },
   cats: { label: "Kategori", icon: "cats" },
   creators: { label: "Kreator", icon: "creators" },
+  favs: { label: "Favorit", icon: "star" },
 };
 
 function Skeleton() {
@@ -53,7 +58,7 @@ function Skeleton() {
 function Dock({ current, go }) {
   return (
     <nav className="dock" aria-label="Menu utama">
-      {["home", "new", "cats", "creators"].map((id) => (
+      {["home", "new", "cats", "creators", "favs"].map((id) => (
         <button type="button" key={id} className={current === id ? "on" : ""} onClick={() => go(id)} aria-current={current === id ? "page" : undefined}>
           <Icon name={TABS[id].icon} size={22} />
           <span>{TABS[id].label}</span>
@@ -171,6 +176,8 @@ export default function Browse() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [selected, setSelected] = useState(null);
+  const maps = useMaps();
+  const [pickFor, setPickFor] = useState(null);
   const input = useRef(null);
 
   useEffect(() => {
@@ -410,6 +417,8 @@ export default function Browse() {
             </section>
           )}
 
+          {posts.length > 0 && current === "favs" && <FavPage posts={posts} maps={maps} onOpen={setSelected} />}
+
           {status === "ready" && stale && (
             <p className="partial">Data belum diperbarui sejak {timeAgo(state.checkedAt)}. Bot pengambil data mungkin sedang bermasalah.</p>
           )}
@@ -423,7 +432,8 @@ export default function Browse() {
       </div>
 
       <Dock current={current} go={go} />
-      <Modal post={selected} onClose={close} onSearch={searchFor} />
+      <Modal post={selected} onClose={close} onSearch={searchFor} saved={selected ? maps.isSaved(selected.id) : false} onSave={setPickFor} />
+      <MapPicker post={pickFor} maps={maps} onClose={() => setPickFor(null)} />
     </>
   );
 }
