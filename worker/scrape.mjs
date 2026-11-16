@@ -98,7 +98,7 @@ async function main() {
         }
         await sleep(useApi ? 1200 + Math.random() * 800 : 2000 + Math.random() * 4000);
         try {
-          return await getAccount(u);
+          return await getAccount(u, { since: state[String(u).toLowerCase()]?.lastOk });
         } catch (e) {
           if (e instanceof QuotaError) quotaHit = e;
           throw e;
