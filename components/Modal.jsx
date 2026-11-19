@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Thumb from "./Thumb.jsx";
 import { firstLine, prettyTitle, timeAgo } from "../lib/browse.js";
+import { extractLinks } from "../lib/links.js";
 
 function shortLink(u) {
   try {
@@ -34,10 +35,12 @@ const tagsFrom = (c) => (String(c || "").replace(/https?:\/\/\S+/g, " ").match(/
 export default function Modal({ post, onClose, onSearch, saved = false, onSave }) {
   const closeBtn = useRef(null);
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState("");
 
   useEffect(() => {
     if (!post) return;
     setOpen(false);
+    setCopied("");
     const onKey = (e) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -56,6 +59,16 @@ export default function Modal({ post, onClose, onSearch, saved = false, onSave }
   const lines = caption.split("\n");
   const dup = lines.length > 1 && lines[0].trim().toLowerCase() === firstLine(post.caption, 90).toLowerCase();
   const body = dup ? lines.slice(1).join("\n").replace(/^\s+/, "") : caption;
+  const links = extractLinks(caption);
+  const copy = async (url) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(url);
+      setTimeout(() => setCopied(""), 1800);
+    } catch {
+      /* tidak diizinkan: abaikan */
+    }
+  };
   const long = body.length > 220 || caption.split("\n").length > 5;
 
   return (
@@ -97,6 +110,20 @@ export default function Modal({ post, onClose, onSearch, saved = false, onSave }
             <div className="chips">
               {chips.map((c) => (
                 <button type="button" key={c} className="chip" onClick={() => onSearch(c)}>#{c}</button>
+              ))}
+            </div>
+          )}
+          {links.length > 0 && (
+            <div className="links">
+              {links.map((l) => (
+                <div className="linkrow" key={l.url}>
+                  <a className="cta cta-peach" href={l.url} target="_blank" rel="noopener noreferrer nofollow">
+                    ↗ Buka {l.label}
+                  </a>
+                  <button type="button" className="copy" onClick={() => copy(l.url)}>
+                    {copied === l.url ? "Tersalin" : "Salin"}
+                  </button>
+                </div>
               ))}
             </div>
           )}
