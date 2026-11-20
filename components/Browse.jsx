@@ -7,6 +7,8 @@ import FavPage from "./FavPage.jsx";
 import MapPicker from "./MapPicker.jsx";
 import useMaps from "./useMaps.js";
 import Thumb from "./Thumb.jsx";
+import NotifPanel from "./NotifPanel.jsx";
+import { unseenPosts } from "../lib/notif.js";
 import { buildRows, categoriesOf, countBy, firstLine, prettyTitle, searchPosts, timeAgo } from "../lib/browse.js";
 
 const ICONS = {
@@ -18,6 +20,7 @@ const ICONS = {
   ext: <path d="M7 17L17 7M8 7h9v9" />,
   star: <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z" />,
   info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>,
+  bell: <><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z" /><path d="M10 20a2 2 0 0 0 4 0" /></>,
   link: <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
 };
 
@@ -32,7 +35,6 @@ function Icon({ name, size = 22 }) {
 const TABS = {
   home: { label: "Home", icon: "home" },
   search: { label: "Cari", icon: "search" },
-  new: { label: "Terbaru", icon: "fresh" },
   cats: { label: "Kategori", icon: "cats" },
   creators: { label: "Kreator", icon: "creators" },
   favs: { label: "Favorit", icon: "star" },
@@ -58,7 +60,7 @@ function Skeleton() {
 function Dock({ current, go }) {
   return (
     <nav className="dock" aria-label="Menu utama">
-      {["home", "new", "cats", "creators", "favs"].map((id) => (
+      {["home", "cats", "creators", "favs"].map((id) => (
         <button type="button" key={id} className={current === id ? "on" : ""} onClick={() => go(id)} aria-current={current === id ? "page" : undefined}>
           <Icon name={TABS[id].icon} size={22} />
           <span>{TABS[id].label}</span>
@@ -179,6 +181,16 @@ export default function Browse() {
   const maps = useMaps();
   const [pickFor, setPickFor] = useState(null);
   const input = useRef(null);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [seenAt, setSeenAt] = useState(0);
+
+  useEffect(() => {
+    try {
+      setSeenAt(Number(localStorage.getItem("sf-seen")) || 0);
+    } catch {
+      /* penyimpanan browser tidak tersedia: angka lonceng mulai dari awal */
+    }
+  }, []);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -228,7 +240,7 @@ export default function Browse() {
     });
   }, [posts]);
   const heroPosts = rows[0]?.posts.slice(0, 6) || [];
-  const fresh = useMemo(() => posts.filter((p) => p.ts > Date.now() - 7 * 86400_000).length, [posts]);
+  const unseen = useMemo(() => unseenPosts(posts, seenAt), [posts, seenAt]);
   const results = useMemo(() => (searching ? searchPosts(posts, query) : []), [posts, query, searching]);
   const categoryPosts = useMemo(() => (category ? searchPosts(posts, "", { category }) : []), [posts, category]);
   const suggestions = useMemo(() => rows.filter((r) => r.id.startsWith("tag-")).map((r) => r.query).slice(0, 10), [rows]);
@@ -244,6 +256,16 @@ export default function Browse() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
   const close = useCallback(() => setSelected(null), []);
+  const closeBell = useCallback(() => setBellOpen(false), []);
+  const markSeen = useCallback(() => {
+    const t = Date.now();
+    setSeenAt(t);
+    try {
+      localStorage.setItem("sf-seen", String(t));
+    } catch {
+      /* tidak disimpan, angka kembali setelah halaman dimuat ulang */
+    }
+  }, []);
   const searchFor = useCallback((q) => {
     setQuery(q);
     setSelected(null);
@@ -268,7 +290,10 @@ export default function Browse() {
             SceneFinder
           </a>
           {posts.length > 0 && (
-            <span className="count" title={`${posts.length} scene tersimpan`}>{fresh > 0 ? `${fresh} baru` : `${posts.length} scene`}</span>
+            <button type="button" className="bell" onClick={() => setBellOpen(true)} aria-label={unseen.length > 0 ? `Notifikasi, ${unseen.length} belum dilihat` : "Notifikasi"}>
+              <Icon name="bell" size={21} />
+              {unseen.length > 0 && <span className="bell-badge" aria-hidden="true">{unseen.length > 9 ? "9+" : unseen.length}</span>}
+            </button>
           )}
           <button type="button" className="top-btn" onClick={() => go("search")} aria-label="Cari scene">
             <Icon name="search" size={20} />
@@ -303,7 +328,7 @@ export default function Browse() {
               {heroPosts.length > 0 && <HeroCarousel posts={heroPosts} onOpen={setSelected} />}
               <div className="rows">
                 {rows.map((r) => (
-                  <Row key={r.id} title={r.title} posts={r.posts} onOpen={setSelected} onTitleClick={r.query ? () => searchFor(r.query) : undefined} />
+                  <Row key={r.id} title={r.title} posts={r.posts} onOpen={setSelected} onTitleClick={r.query ? () => searchFor(r.query) : undefined} showNew={r.id !== "new"} />
                 ))}
               </div>
             </>
@@ -351,13 +376,6 @@ export default function Browse() {
                   </div>
                 </>
               )}
-            </section>
-          )}
-
-          {posts.length > 0 && current === "new" && (
-            <section className="results">
-              <h2 className="row-title">Terbaru</h2>
-              {grid(posts.slice(0, 60))}
             </section>
           )}
 
@@ -432,6 +450,7 @@ export default function Browse() {
       </div>
 
       <Dock current={current} go={go} />
+      {bellOpen && <NotifPanel posts={posts} seenAt={seenAt} onOpen={(p) => { setBellOpen(false); setSelected(p); }} onClose={closeBell} onMarkSeen={markSeen} />}
       <Modal post={selected} onClose={close} onSearch={searchFor} saved={selected ? maps.isSaved(selected.id) : false} onSave={setPickFor} />
       <MapPicker post={pickFor} maps={maps} onClose={() => setPickFor(null)} />
     </>
