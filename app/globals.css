@@ -477,3 +477,15 @@ body::after { transform: translateZ(0); }
 .n-info strong { font-size: 15px; line-height: 1.3; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .n-info small { color: var(--muted); font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .n-new { flex: none; padding: 4px 9px; border-radius: 999px; background: var(--mint); color: #0b3a30; font-size: 11px; font-weight: 800; letter-spacing: .06em; }
+
+/* menu Tentang di kiri logo */
+.menu-btn { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin: 0 -6px 0 -10px; padding: 0; border: 0; background: none; color: var(--ink); }
+.about-body { padding: 0 20px calc(28px + env(safe-area-inset-bottom, 0px)); }
+.about-body h3 { margin: 20px 0 6px; font-size: 16px; font-weight: 800; letter-spacing: 0; }
+.about-body h3:first-child { margin-top: 8px; }
+.about-body p { margin: 0; font-size: 14px; line-height: 1.5; color: #3d3d3a; }
+.about-body ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.7; color: #3d3d3a; }
+.about-body .about-note { margin-top: 8px; font-size: 13px; color: var(--muted); }
+.about-img { display: block; margin-top: 12px; border-radius: 20px; background: var(--ink); max-width: 100%; height: auto; }
+.about-img.owner { width: 100%; max-width: 340px; }
+.about-img.qris { width: 200px; background: var(--white); }
