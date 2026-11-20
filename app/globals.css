@@ -394,7 +394,7 @@ body::after { transform: translateZ(0); }
 
 /* ---------- v13: Favorit sebagai tumpukan map ---------- */
 .folders { display: flex; flex-direction: column; padding: 14px 0 20px; }
-.folder { position: relative; display: block; width: 100%; min-height: 150px; margin-top: -26px; padding: 20px 18px 26px; border: 0; border-radius: 30px; text-align: left; color: var(--ink); box-shadow: 0 -6px 14px rgba(0, 0, 0, .06); cursor: pointer; }
+.folder { position: relative; display: block; width: 100%; min-height: 124px; margin-top: -26px; padding: 20px 18px 26px; border: 0; border-radius: 30px; text-align: left; color: var(--ink); box-shadow: 0 -6px 14px rgba(0, 0, 0, .06); cursor: pointer; }
 .folder:first-child { margin-top: 0; }
 .folder::before { content: ""; position: absolute; left: 24px; top: -12px; width: 84px; height: 14px; border-radius: 12px 12px 0 0; background: inherit; }
 .folder.f0 { background: var(--mint); }
@@ -405,8 +405,10 @@ body::after { transform: translateZ(0); }
 .folder-name { font-size: 19px; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; overflow-wrap: anywhere; }
 .folder-count { display: flex; flex-direction: column; align-items: flex-end; font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -.04em; }
 .folder-count small { font-size: 12px; font-weight: 600; letter-spacing: 0; opacity: .7; }
-.folder-thumbs { display: flex; gap: 6px; margin-top: 12px; }
-.folder-thumbs .t { position: relative; width: 46px; height: 60px; overflow: hidden; border-radius: 12px; background: rgba(0, 0, 0, .15); }
+.folder-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.folder-empty { font-size: 13px; font-weight: 600; opacity: .7; }
+.folder-thumbs { display: flex; flex: none; align-items: center; gap: 5px; }
+.folder-thumbs .t { position: relative; width: 34px; height: 44px; overflow: hidden; border-radius: 10px; background: rgba(0, 0, 0, .15); }
 .folder-img, .folder .thumb-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .fav-head { display: flex; align-items: center; gap: 10px; }
 .fav-title { margin: 0; }
@@ -443,3 +445,9 @@ body::after { transform: translateZ(0); }
 .linkrow { display: flex; gap: 8px; }
 .linkrow .cta { flex: 1; min-width: 0; justify-content: center; text-align: center; }
 .linkrow .copy { flex: 0 0 auto; padding: 0 18px; border: 0; border-radius: 999px; background: #ffffff1f; color: var(--white); font-weight: 700; }
+
+/* gambaran paket 1: judul halaman dengan aksen, badge BARU, tinggi kartu grid seragam */
+.results .row-title:not(.head-back) { display: flex; align-items: center; gap: 10px; }
+.results .row-title:not(.head-back)::before { content: ""; flex: none; width: 5px; height: 22px; border-radius: 3px; background: #7CCDB6; }
+.nw { position: absolute; top: 10px; right: 10px; background: var(--mint); color: #0b3a30; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: .06em; }
+.grid .card-info strong { min-height: 2.5em; }
