@@ -22,7 +22,7 @@ export function PosterCard({ post, onOpen, showNew = false }) {
   );
 }
 
-export default function Row({ title, posts, onOpen, onTitleClick }) {
+export default function Row({ title, posts, onOpen, onTitleClick, showNew = false }) {
   const scroller = useRef(null);
   const slide = (dir) => {
     const el = scroller.current;
@@ -45,7 +45,7 @@ export default function Row({ title, posts, onOpen, onTitleClick }) {
         </button>
         <div className="row-scroll" ref={scroller}>
           {posts.map((p) => (
-            <PosterCard key={p.id} post={p} onOpen={onOpen} />
+            <PosterCard key={p.id} post={p} onOpen={onOpen} showNew={showNew} />
           ))}
         </div>
         <button type="button" className="arrow right" onClick={() => slide(1)} aria-label="Geser kanan">
