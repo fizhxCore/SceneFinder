@@ -4,13 +4,15 @@ import { useRef } from "react";
 import Thumb from "./Thumb.jsx";
 import { prettyTitle } from "../lib/browse.js";
 
-export function PosterCard({ post, onOpen }) {
+export function PosterCard({ post, onOpen, showNew = false }) {
   const title = prettyTitle(post.caption, 60) || `@${post.username}`;
+  const isNew = showNew && post.ts > Date.now() - 7 * 86400_000;
   return (
     <button type="button" className="card" onClick={() => onOpen(post)} aria-label={`${title}, dari ${post.username}`}>
       <span className="card-media">
         <Thumb src={post.thumb} className="card-img" />
         {post.kind !== "photo" && <span className="kind">{post.kind === "reel" ? "Reel" : post.kind === "carousel" ? "Slide" : "Video"}</span>}
+        {isNew && <span className="nw">BARU</span>}
       </span>
       <span className="card-info">
         <strong>{title}</strong>

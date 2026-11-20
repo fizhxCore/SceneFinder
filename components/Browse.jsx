@@ -254,7 +254,7 @@ export default function Browse() {
   const grid = (list) => (
     <div className="grid">
       {list.map((p) => (
-        <PosterCard key={p.id} post={p} onOpen={setSelected} />
+        <PosterCard key={p.id} post={p} onOpen={setSelected} showNew />
       ))}
     </div>
   );

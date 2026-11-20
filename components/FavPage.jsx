@@ -60,18 +60,21 @@ export default function FavPage({ posts, maps, onOpen }) {
             return (
               <button type="button" key={m.id} className={`folder ${TONES[i % TONES.length]}`} onClick={() => setOpenId(m.id)} aria-label={`Buka map ${m.name}, ${scenes.length} scene`}>
                 <span className="folder-head">
-                  <span className="folder-name">{m.name}</span>
+                  <span className="folder-main">
+                    <span className="folder-name">{m.name}</span>
+                    {scenes.length === 0 && <span className="folder-empty">Belum ada scene</span>}
+                  </span>
+                  <span className="folder-thumbs">
+                    {scenes.slice(0, 3).map((p) => (
+                      <span key={p.id} className="t">
+                        <Thumb src={p.thumb} className="folder-img" />
+                      </span>
+                    ))}
+                  </span>
                   <span className="folder-count">
                     {scenes.length}
                     <small>scene</small>
                   </span>
-                </span>
-                <span className="folder-thumbs">
-                  {scenes.slice(0, 5).map((p) => (
-                    <span key={p.id} className="t">
-                      <Thumb src={p.thumb} className="folder-img" />
-                    </span>
-                  ))}
                 </span>
               </button>
             );
