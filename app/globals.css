@@ -494,11 +494,13 @@ body::after { transform: translateZ(0); }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .explore-btn { display: inline-flex; align-items: center; min-height: 44px; margin: 0 0 14px; padding: 0 18px; border: 0; border-radius: 22px; background: var(--ink); color: var(--white); font-size: 14px; font-weight: 700; }
 .ex-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
-.ex-pick { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 6px 0 16px; border-radius: 22px; background: var(--white); font-size: 14px; font-weight: 700; }
-.ex-pick select { min-height: 44px; max-width: 160px; padding: 0 10px; border: 0; background: none; color: var(--ink); font: inherit; }
+.ex-pick { position: relative; display: flex; flex: 1; min-width: 0; align-items: center; gap: 6px; min-height: 44px; padding: 0 32px 0 16px; border-radius: 22px; background: var(--white); font-size: 14px; font-weight: 700; white-space: nowrap; }
+.ex-pick:focus-within { box-shadow: 0 0 0 3px #7CCDB6; }
+.ex-pick svg { position: absolute; right: 13px; top: 50%; margin-top: -7px; pointer-events: none; }
+.ex-pick select { flex: 1; min-width: 0; min-height: 44px; padding: 0 4px; border: 0; outline: none; border-radius: 0; background: none; color: var(--ink); font: inherit; text-overflow: ellipsis; -webkit-appearance: none; appearance: none; }
 .ex-undo { min-height: 44px; padding: 0 6px; border: 0; background: none; color: #2f6f5a; font-size: 14px; font-weight: 700; }
 .ex-undo:disabled { color: var(--muted); opacity: .6; }
-.ex-stage { position: relative; width: min(100%, 340px); height: min(56dvh, 460px); margin: 14px auto 0; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.ex-stage { --exh: clamp(300px, calc(100dvh - 330px), 480px); position: relative; width: min(100%, calc(var(--exh) * .75)); height: var(--exh); margin: 14px auto 0; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .ex-card { position: absolute; inset: 0; overflow: hidden; border-radius: 28px; background: #231f1d; color: #f4f4f1; }
 .ex-card.back1 { transform: translateY(11px) scale(.95); }
 .ex-card.back2 { transform: translateY(22px) scale(.9); }
