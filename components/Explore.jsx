@@ -156,14 +156,11 @@ export default function Explore({ posts, maps, onOpen, onClose }) {
 
   return (
     <section className="results ex">
-      <div className="fav-head">
+      <h2 className="sr-only">Jelajah scene</h2>
+      <div className="ex-bar">
         <button type="button" className="fav-back" onClick={onClose} aria-label="Kembali ke Favorit">
           ←
         </button>
-        <h2 className="row-title fav-title">Jelajah scene</h2>
-      </div>
-
-      <div className="ex-bar">
         <label className="ex-pick">
           <span>Simpan ke</span>
           <select
@@ -185,6 +182,7 @@ export default function Explore({ posts, maps, onOpen, onClose }) {
             ))}
             <option value="__new">+ Map baru…</option>
           </select>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
         </label>
         <button type="button" className="ex-undo" onClick={undo} disabled={history.length === 0}>
           Batalkan
