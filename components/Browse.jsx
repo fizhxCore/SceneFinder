@@ -9,6 +9,8 @@ import useMaps from "./useMaps.js";
 import Thumb from "./Thumb.jsx";
 import NotifPanel from "./NotifPanel.jsx";
 import AboutPanel from "./AboutPanel.jsx";
+import TopRow from "./TopRow.jsx";
+import { topTopics } from "../lib/topics.js";
 import { unseenPosts } from "../lib/notif.js";
 import { buildRows, categoriesOf, countBy, firstLine, prettyTitle, searchPosts, timeAgo } from "../lib/browse.js";
 
@@ -243,6 +245,7 @@ export default function Browse() {
     });
   }, [posts]);
   const heroPosts = rows[0]?.posts.slice(0, 6) || [];
+  const topics = useMemo(() => topTopics(posts), [posts]);
   const unseen = useMemo(() => unseenPosts(posts, seenAt), [posts, seenAt]);
   const results = useMemo(() => (searching ? searchPosts(posts, query) : []), [posts, query, searching]);
   const categoryPosts = useMemo(() => (category ? searchPosts(posts, "", { category }) : []), [posts, category]);
@@ -334,6 +337,7 @@ export default function Browse() {
             <>
               {heroPosts.length > 0 && <HeroCarousel posts={heroPosts} onOpen={setSelected} />}
               <div className="rows">
+                <TopRow topics={topics} onPick={searchFor} />
                 {rows.map((r) => (
                   <Row key={r.id} title={r.title} posts={r.posts} onOpen={setSelected} onTitleClick={r.query ? () => searchFor(r.query) : undefined} showNew={r.id !== "new"} />
                 ))}
