@@ -11,6 +11,7 @@ import NotifPanel from "./NotifPanel.jsx";
 import AboutPanel from "./AboutPanel.jsx";
 import TopRow from "./TopRow.jsx";
 import { topTopics } from "../lib/topics.js";
+import { pickCovers, creatorThumbs } from "../lib/covers.js";
 import { unseenPosts } from "../lib/notif.js";
 import { buildRows, categoriesOf, countBy, firstLine, prettyTitle, searchPosts, timeAgo } from "../lib/browse.js";
 
@@ -250,7 +251,9 @@ export default function Browse() {
   const results = useMemo(() => (searching ? searchPosts(posts, query) : []), [posts, query, searching]);
   const categoryPosts = useMemo(() => (category ? searchPosts(posts, "", { category }) : []), [posts, category]);
   const suggestions = useMemo(() => rows.filter((r) => r.id.startsWith("tag-")).map((r) => r.query).slice(0, 10), [rows]);
-  const coverOf = useCallback((cat) => posts.find((p) => p.category.toLowerCase() === cat.toLowerCase())?.thumb, [posts]);
+  const covers = useMemo(() => pickCovers(posts, categories), [posts, categories]);
+  const avatars = useMemo(() => creatorThumbs(posts), [posts]);
+  const coverOf = useCallback((cat) => covers.get(cat.toLowerCase())?.thumb, [covers]);
   const creatorCategory = useCallback((u) => posts.find((p) => p.username === u)?.category || "", [posts]);
 
   const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -428,10 +431,12 @@ export default function Browse() {
           {posts.length > 0 && current === "creators" && (
             <section className="results">
               <h2 className="row-title">Kreator</h2>
-              <div className="panel">
+              <div className="creator-list">
                 {creators.map((c) => (
                   <button type="button" key={c.name} className="creator" onClick={() => searchFor(c.name)}>
-                    <span className="avatar" aria-hidden="true">{c.name.slice(0, 1).toUpperCase()}</span>
+                    <span className="avatar" aria-hidden="true">
+                      {avatars.get(c.name.toLowerCase())?.thumb ? <Thumb src={avatars.get(c.name.toLowerCase()).thumb} className="avatar-img" /> : c.name.slice(0, 1).toUpperCase()}
+                    </span>
                     <span className="creator-name">
                       <strong>@{c.name}</strong>
                       {creatorCategory(c.name) && <small>{creatorCategory(c.name)}</small>}
