@@ -489,3 +489,32 @@ body::after { transform: translateZ(0); }
 .about-img { display: block; margin-top: 12px; border-radius: 20px; background: var(--ink); max-width: 100%; height: auto; }
 .about-img.owner { width: 100%; max-width: 340px; }
 .about-img.qris { width: 200px; background: var(--white); }
+
+/* jelajah scene (geser kartu) */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.explore-btn { display: inline-flex; align-items: center; min-height: 44px; margin: 0 0 14px; padding: 0 18px; border: 0; border-radius: 22px; background: var(--ink); color: var(--white); font-size: 14px; font-weight: 700; }
+.ex-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.ex-pick { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 6px 0 16px; border-radius: 22px; background: var(--white); font-size: 14px; font-weight: 700; }
+.ex-pick select { min-height: 44px; max-width: 160px; padding: 0 10px; border: 0; background: none; color: var(--ink); font: inherit; }
+.ex-undo { min-height: 44px; padding: 0 6px; border: 0; background: none; color: #2f6f5a; font-size: 14px; font-weight: 700; }
+.ex-undo:disabled { color: var(--muted); opacity: .6; }
+.ex-stage { position: relative; width: min(100%, 340px); height: min(56dvh, 460px); margin: 14px auto 0; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.ex-card { position: absolute; inset: 0; overflow: hidden; border-radius: 28px; background: #231f1d; color: #f4f4f1; }
+.ex-card.back1 { transform: translateY(11px) scale(.95); }
+.ex-card.back2 { transform: translateY(22px) scale(.9); }
+.ex-card.front { cursor: grab; box-shadow: 0 12px 28px rgba(0, 0, 0, .2); transition: transform .2s ease; will-change: transform; }
+.ex-card.front.drag { transition: none; cursor: grabbing; }
+@media (prefers-reduced-motion: reduce) { .ex-card.front { transition: none; } }
+.ex-img, .ex-card .thumb-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.ex-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 20px; background: rgba(0, 0, 0, .6); }
+.ex-info strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; font-size: 24px; line-height: 1.2; font-weight: 800; }
+.ex-info small { display: block; margin-top: 4px; font-size: 14px; color: #d6d6d2; }
+.ex-stamp { position: absolute; top: 26px; padding: 6px 14px; border: 3px solid currentColor; border-radius: 12px; font-size: 22px; font-weight: 800; letter-spacing: .08em; pointer-events: none; opacity: 0; }
+.ex-stamp.save { left: 22px; color: #7CCDB6; transform: rotate(-12deg); }
+.ex-stamp.skip { right: 22px; color: #fff; transform: rotate(12deg); }
+.ex-new { position: absolute; top: 24px; right: 20px; }
+.ex-actions { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 34px; }
+.ex-btn { display: grid; place-items: center; border: 0; border-radius: 50%; background: var(--white); color: var(--ink); }
+.ex-btn.save { background: var(--mint); }
+.ex-hint { margin: 12px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
+.ex-again { margin-top: 14px; }
