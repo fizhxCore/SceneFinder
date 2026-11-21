@@ -3,15 +3,19 @@
 import { useMemo, useState } from "react";
 import Thumb from "./Thumb.jsx";
 import { PosterCard } from "./Row.jsx";
+import Explore from "./Explore.jsx";
 
 const TONES = ["f0", "f1", "f2", "f3"];
 
 export default function FavPage({ posts, maps, onOpen }) {
   const [openId, setOpenId] = useState(null);
+  const [exploring, setExploring] = useState(false);
   const byId = useMemo(() => new Map(posts.map((p) => [p.id, p])), [posts]);
   const list = maps.state.maps;
   const open = list.find((m) => m.id === openId) || null;
   const scenesOf = (m) => m.ids.map((id) => byId.get(id)).filter(Boolean); // scene yang sudah terbuang dari feed tidak ditampilkan
+
+  if (exploring) return <Explore posts={posts} maps={maps} onOpen={onOpen} onClose={() => setExploring(false)} />;
 
   if (open) {
     const scenes = scenesOf(open);
@@ -49,6 +53,9 @@ export default function FavPage({ posts, maps, onOpen }) {
   return (
     <section className="results">
       <h2 className="row-title">Favorit</h2>
+      <button type="button" className="explore-btn" onClick={() => setExploring(true)}>
+        Jelajah scene
+      </button>
       {list.length === 0 ? (
         <div className="state">
           <p>Belum ada map. Buka sebuah scene dan ketuk bintang untuk menyimpannya ke map, misalnya “Edit minggu ini”.</p>
