@@ -9,6 +9,7 @@ import useMaps from "./useMaps.js";
 import Thumb from "./Thumb.jsx";
 import NotifPanel from "./NotifPanel.jsx";
 import AboutPanel from "./AboutPanel.jsx";
+import RequestPanel from "./RequestPanel.jsx";
 import TopRow from "./TopRow.jsx";
 import { topTopics } from "../lib/topics.js";
 import { pickCovers, creatorThumbs } from "../lib/covers.js";
@@ -188,6 +189,7 @@ export default function Browse() {
   const input = useRef(null);
   const [bellOpen, setBellOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [requestOpen, setRequestOpen] = useState(false);
   const [seenAt, setSeenAt] = useState(0);
 
   useEffect(() => {
@@ -267,6 +269,7 @@ export default function Browse() {
   const close = useCallback(() => setSelected(null), []);
   const closeBell = useCallback(() => setBellOpen(false), []);
   const closeAbout = useCallback(() => setAboutOpen(false), []);
+  const closeRequest = useCallback(() => setRequestOpen(false), []);
   const markSeen = useCallback(() => {
     const t = Date.now();
     setSeenAt(t);
@@ -466,7 +469,8 @@ export default function Browse() {
       </div>
 
       <Dock current={current} go={go} />
-      {aboutOpen && <AboutPanel onClose={closeAbout} />}
+      {aboutOpen && <AboutPanel onClose={closeAbout} onRequest={() => { setAboutOpen(false); setRequestOpen(true); }} />}
+      {requestOpen && <RequestPanel onClose={closeRequest} />}
       {bellOpen && <NotifPanel posts={posts} seenAt={seenAt} onOpen={(p) => { setBellOpen(false); setSelected(p); }} onClose={closeBell} onMarkSeen={markSeen} />}
       <Modal post={selected} onClose={close} onSearch={searchFor} saved={selected ? maps.isSaved(selected.id) : false} onSave={setPickFor} />
       <MapPicker post={pickFor} maps={maps} onClose={() => setPickFor(null)} />
