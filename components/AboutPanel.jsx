@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export default function AboutPanel({ onClose }) {
+export default function AboutPanel({ onClose, onRequest }) {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -23,6 +23,10 @@ export default function AboutPanel({ onClose }) {
           </button>
         </div>
         <div className="notif-list about-body">
+          <button type="button" className="rq-open" onClick={onRequest}>
+            Request scenepack
+          </button>
+
           <h3>Akses khusus</h3>
           <p>Kalau kamu bisa membuka SceneFinder, berarti kamu dipilih langsung oleh owner. Tolong jaga aksesnya: jangan bagikan sandi atau tautannya ke orang lain.</p>
           <img className="about-img owner" src="/owner.png" alt="Akun owner: xyno! oemjii, @xynoxyz21" width="720" height="264" loading="lazy" />
