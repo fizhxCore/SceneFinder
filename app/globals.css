@@ -531,3 +531,11 @@ body::after { transform: translateZ(0); }
 .top-meta { position: absolute; right: 0; top: 188px; z-index: 1; display: block; width: 120px; }
 .top-meta b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; line-height: 19px; }
 .top-meta small { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--muted); }
+
+/* Kreator: kartu terang dengan avatar thumbnail */
+.creator-list { display: flex; flex-direction: column; gap: 10px; }
+.creator { min-height: 72px; border: 0; background: var(--white); color: var(--ink); text-align: left; }
+.creator:hover, .creator:focus-visible { border: 0; box-shadow: 0 0 0 3px var(--mint); outline: none; }
+.creator-name small, .creator-count small { color: var(--muted); }
+.avatar { position: relative; overflow: hidden; }
+.avatar-img, .avatar .thumb-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
