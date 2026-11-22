@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { addMap, emptyState, mapsOf, normalize, removeMap, renameMap, toggleScene } from "../lib/maps.js";
+import { addMap, emptyState, mapsOf, normalize, removeMap, renameMap, restoreMap, toggleScene } from "../lib/maps.js";
 
 const KEY = "sf_maps_v1";
 
@@ -39,6 +39,7 @@ export default function useMaps() {
     toggle: (mapId, postId) => apply(toggleScene(ref.current, mapId, postId)),
     rename: (mapId, name) => apply(renameMap(ref.current, mapId, name)),
     remove: (mapId) => apply(removeMap(ref.current, mapId)),
+    restore: (map, index) => apply(restoreMap(ref.current, map, index)),
     isSaved: (postId) => state.maps.some((m) => m.ids.includes(postId)),
     mapsOf: (postId) => mapsOf(state, postId),
   };
