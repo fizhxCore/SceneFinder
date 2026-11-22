@@ -1,18 +1,45 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Thumb from "./Thumb.jsx";
 import { PosterCard } from "./Row.jsx";
 import Explore from "./Explore.jsx";
+import MapMenu from "./MapMenu.jsx";
 
 const TONES = ["f0", "f1", "f2", "f3"];
 
 export default function FavPage({ posts, maps, onOpen }) {
   const [openId, setOpenId] = useState(null);
   const [exploring, setExploring] = useState(false);
+  const [menuId, setMenuId] = useState(null);
+  const [undo, setUndo] = useState(null);
+  const undoTimer = useRef(null);
   const byId = useMemo(() => new Map(posts.map((p) => [p.id, p])), [posts]);
   const list = maps.state.maps;
   const open = list.find((m) => m.id === openId) || null;
+  const menuMap = list.find((m) => m.id === menuId) || null;
+
+  useEffect(() => () => clearTimeout(undoTimer.current), []);
+
+  // Hapus langsung, lalu beri 6 detik untuk membatalkan. Tidak perlu kotak konfirmasi.
+  const removeWithUndo = (m) => {
+    const index = list.findIndex((x) => x.id === m.id);
+    maps.remove(m.id);
+    setUndo({ map: m, index });
+    clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setUndo(null), 6000);
+  };
+  const undoRemove = () => {
+    if (!undo) return;
+    maps.restore(undo.map, undo.index);
+    clearTimeout(undoTimer.current);
+    setUndo(null);
+  };
+  const renameMap = (m) => {
+    const n = window.prompt("Nama baru untuk map ini", m.name);
+    if (n) maps.rename(m.id, n);
+  };
+
   const scenesOf = (m) => m.ids.map((id) => byId.get(id)).filter(Boolean); // scene yang sudah terbuang dari feed tidak ditampilkan
 
   if (exploring) return <Explore posts={posts} maps={maps} onOpen={onOpen} onClose={() => setExploring(false)} />;
@@ -31,7 +58,7 @@ export default function FavPage({ posts, maps, onOpen }) {
           <button type="button" className="chip" onClick={() => { const n = window.prompt("Nama baru untuk map ini", open.name); if (n) maps.rename(open.id, n); }}>
             Ganti nama
           </button>
-          <button type="button" className="chip" onClick={() => { if (window.confirm(`Hapus map “${open.name}”? Scene-nya tidak ikut terhapus dari web.`)) { maps.remove(open.id); setOpenId(null); } }}>
+          <button type="button" className="chip" onClick={() => { removeWithUndo(open); setOpenId(null); }}>
             Hapus map
           </button>
         </div>
@@ -65,11 +92,12 @@ export default function FavPage({ posts, maps, onOpen }) {
           {list.map((m, i) => {
             const scenes = scenesOf(m);
             return (
-              <button type="button" key={m.id} className={`folder ${TONES[i % TONES.length]}`} onClick={() => setOpenId(m.id)} aria-label={`Buka map ${m.name}, ${scenes.length} scene`}>
+              <div key={m.id} className={`folder ${TONES[i % TONES.length]}`}>
+                <button type="button" className="folder-open" onClick={() => setOpenId(m.id)} aria-label={`Buka map ${m.name}, ${scenes.length} scene`} />
                 <span className="folder-head">
                   <span className="folder-main">
                     <span className="folder-name">{m.name}</span>
-                    {scenes.length === 0 && <span className="folder-empty">Belum ada scene</span>}
+                    <span className="folder-sub">{scenes.length === 0 ? "Belum ada scene" : `${scenes.length} scene`}</span>
                   </span>
                   <span className="folder-thumbs">
                     {scenes.slice(0, 3).map((p) => (
@@ -78,14 +106,27 @@ export default function FavPage({ posts, maps, onOpen }) {
                       </span>
                     ))}
                   </span>
-                  <span className="folder-count">
-                    {scenes.length}
-                    <small>scene</small>
-                  </span>
+                  <button type="button" className="folder-more" onClick={() => setMenuId(m.id)} aria-label={`Menu map ${m.name}`}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01" /></svg>
+                  </button>
                 </span>
-              </button>
+              </div>
             );
           })}
+        </div>
+      )}
+      {menuMap && (
+        <MapMenu
+          map={menuMap}
+          onClose={() => setMenuId(null)}
+          onRename={() => { setMenuId(null); renameMap(menuMap); }}
+          onDelete={() => { setMenuId(null); removeWithUndo(menuMap); }}
+        />
+      )}
+      {undo && (
+        <div className="snack" role="status">
+          <span>Map “{undo.map.name}” dihapus</span>
+          <button type="button" onClick={undoRemove}>Batalkan</button>
         </div>
       )}
     </section>
