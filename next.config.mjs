@@ -11,6 +11,8 @@ const nextConfig = {
   async headers() {
     return [
       { source: "/(.*)", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      // Service worker harus selalu diambil ulang supaya pembaruannya sampai.
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }] },
       // Nama file thumbnail = ID post dan isinya tidak berubah, jadi aman di-cache lama.
       { source: "/thumbs/(.*)", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
