@@ -583,3 +583,21 @@ body::after { transform: translateZ(0); }
 .adm-actions button { min-height: 44px; padding: 0 14px; border: 1px solid #3a3a3a; border-radius: 999px; background: none; color: #cfd8d3; font-size: 13px; font-weight: 700; }
 .adm-actions button[aria-pressed="true"] { border-color: var(--mint); background: var(--mint); color: var(--ink); }
 .adm-actions button:disabled { opacity: .5; }
+
+/* menu map (⋯) dan Batalkan setelah hapus */
+.folder { cursor: default; }
+.folder-open { position: absolute; inset: 0; z-index: 0; width: 100%; border: 0; border-radius: inherit; background: none; cursor: pointer; }
+.folder-open:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.folder .folder-head { position: relative; z-index: 1; align-items: center; pointer-events: none; }
+.folder-name { font-size: 22px; }
+.folder-sub { display: block; margin-top: 2px; font-size: 14px; font-weight: 600; opacity: .7; }
+.folder-more { pointer-events: auto; display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin: -10px -12px -10px 0; padding: 0; border: 0; background: none; color: inherit; }
+.folder-more svg { fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; }
+.map-menu-body { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+.mm-row { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 56px; padding: 0 20px; border: 0; background: none; color: var(--ink); font-size: 16px; font-weight: 700; text-align: left; }
+.mm-row:hover { background: rgba(0, 0, 0, .04); }
+.mm-row svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.mm-danger { color: #a1362b; }
+.mm-note { margin: 6px 20px 0; font-size: 13px; color: var(--muted); }
+.snack { position: fixed; left: 16px; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 45; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; max-width: 520px; min-height: 52px; margin: 0 auto; padding: 0 8px 0 20px; border-radius: 26px; background: var(--ink); color: var(--white); font-size: 14px; font-weight: 600; animation: fade .18s ease; }
+.snack button { min-height: 44px; padding: 0 14px; border: 0; background: none; color: #7CCDB6; font-size: 14px; font-weight: 800; }
