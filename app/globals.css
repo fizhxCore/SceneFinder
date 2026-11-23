@@ -601,3 +601,46 @@ body::after { transform: translateZ(0); }
 .mm-note { margin: 6px 20px 0; font-size: 13px; color: var(--muted); }
 .snack { position: fixed; left: 16px; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 45; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; max-width: 520px; min-height: 52px; margin: 0 auto; padding: 0 8px 0 20px; border-radius: 26px; background: var(--ink); color: var(--white); font-size: 14px; font-weight: 600; animation: fade .18s ease; }
 .snack button { min-height: 44px; padding: 0 14px; border: 0; background: none; color: #7CCDB6; font-size: 14px; font-weight: 800; }
+
+/* admin: tampilan terang seperti halaman awal */
+.ad-main { min-height: 100dvh; padding: 0 0 40px; }
+.ad { width: min(480px, 100%); margin: 0 auto; }
+.ad-head { display: flex; align-items: center; gap: 10px; padding: 18px 20px 12px; border-bottom: 1px solid #d3d3cf; }
+.ad-head img { width: 46px; height: auto; }
+.ad-head b { font-size: 20px; font-weight: 800; }
+.ad-head form { margin-left: auto; }
+.ad-out { min-height: 44px; padding: 0 18px; border: 0; border-radius: 22px; background: var(--white); color: var(--ink); font-size: 14px; font-weight: 700; }
+.ad-session { margin: 10px 20px 0; font-size: 12px; color: var(--muted); }
+.ad-tabs { display: flex; gap: 8px; margin: 12px 20px 14px; }
+.ad-tab { min-height: 44px; padding: 0 18px; border: 0; border-radius: 22px; background: var(--white); color: var(--ink); font-size: 14px; font-weight: 700; }
+.ad-tab[aria-selected="true"] { background: var(--ink); color: var(--white); }
+.ad-tab i { margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: var(--mint); color: #0b3a30; font-size: 12px; font-style: normal; }
+.ad-card { margin: 0 20px 12px; padding: 20px; border-radius: 28px; background: var(--white); }
+.ad-card h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; }
+.ad-card p { margin: 0 0 14px; font-size: 14px; line-height: 1.5; color: #3d3d3a; }
+.ad-card label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 800; }
+.ad-input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; border: 2px solid #d3d3cf; border-radius: 16px; background: var(--white); color: var(--ink); font: inherit; font-size: 16px; }
+.ad-input:focus-visible { outline: none; border-color: #1f8f78; box-shadow: 0 0 0 3px rgba(124, 205, 182, .5); }
+.ad-go { width: 100%; min-height: 48px; margin-top: 12px; border: 0; border-radius: 24px; background: var(--ink); color: var(--white); font-size: 15px; font-weight: 700; }
+.ad-go:disabled { opacity: .5; }
+.ad-ok, .ad-err { margin: 12px 0 0; padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 600; line-height: 1.45; }
+.ad-card p.ad-ok, .ad-card p.ad-err { margin: 12px 0 0; }
+.ad-ok { background: var(--mint); color: #0b3a30; }
+.ad-err { background: var(--peach); color: var(--ink); }
+.ad-msg { margin: 0 20px 12px; }
+.ad-chips { display: flex; gap: 8px; margin: 0 20px 12px; overflow-x: auto; }
+.ad-chip { flex: none; min-height: 36px; padding: 0 14px; border: 0; border-radius: 18px; background: var(--white); color: var(--ink); font-size: 13px; font-weight: 700; }
+.ad-chip[aria-pressed="true"] { background: var(--mint); color: #0b3a30; }
+.ad-list { margin: 0; padding: 0; }
+.ad-req { margin: 0 20px 12px; padding: 16px; border-radius: 24px; background: var(--white); list-style: none; }
+.ad-req-top { display: flex; align-items: center; gap: 10px; }
+.ad-req h3 { flex: 1; min-width: 0; margin: 0; font-size: 17px; font-weight: 800; overflow-wrap: anywhere; }
+.ad-req p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; color: #3d3d3a; overflow-wrap: anywhere; }
+.ad-req small { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.ad-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ad-acts button { min-height: 44px; padding: 0 16px; border: 0; border-radius: 22px; background: var(--fog); color: var(--ink); font-size: 13px; font-weight: 700; }
+.ad-acts button[aria-pressed="true"] { background: var(--mint); color: #0b3a30; }
+.ad-acts button:disabled { opacity: .5; }
+.ad-empty { margin: 0 20px 12px; color: var(--muted); }
+.ad-card p.ad-ok { color: #0b3a30; }
+.ad-card p.ad-err { color: var(--ink); }
