@@ -13,6 +13,9 @@ const nextConfig = {
       { source: "/(.*)", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       // Service worker harus selalu diambil ulang supaya pembaruannya sampai.
       { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }] },
+      // Halaman dan API admin: tidak boleh dipasang dalam bingkai situs lain dan tidak boleh disimpan di cache.
+      { source: "/admin", headers: [{ key: "X-Frame-Options", value: "DENY" }, { key: "Cache-Control", value: "no-store" }] },
+      { source: "/api/admin/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },
       // Nama file thumbnail = ID post dan isinya tidak berubah, jadi aman di-cache lama.
       { source: "/thumbs/(.*)", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
