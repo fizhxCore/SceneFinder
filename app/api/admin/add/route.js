@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { safeEqual } from "../../../../lib/auth.js";
+import { isAdmin } from "../../../../lib/adminSession.js";
 import { parseInstagramPostUrl } from "../../../../lib/igurl.js";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +14,8 @@ export async function POST(req) {
   const origin = req.headers.get("origin");
   if (origin && new URL(origin).host !== req.headers.get("host")) return fail("Permintaan ditolak.", 403);
 
+  if (!(await isAdmin(req))) return fail("Sesi admin habis. Muat ulang halaman, lalu masuk lagi.", 401);
   const body = await req.json().catch(() => ({}));
-  if (!safeEqual(String(body.key ?? ""), ADMIN_KEY)) {
-    await new Promise((r) => setTimeout(r, 700)); // memperlambat tebak-tebakan kunci
-    return fail("Kunci admin salah.", 401);
-  }
   const post = parseInstagramPostUrl(body.url);
   if (!post) return fail("Itu bukan link postingan Instagram (contoh: instagram.com/p/xxxx atau /reel/xxxx).", 400);
 
