@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { safeEqual } from "../../../../lib/auth.js";
+import { isAdmin } from "../../../../lib/adminSession.js";
 import { redis, upstashConfigured } from "../../../../lib/upstash.js";
 import { isStatus, parseStored, publicView } from "../../../../lib/requests.js";
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const HASH = "sf:req";
 const fail = (error, status) => NextResponse.json({ error }, { status });
 
-// Satu rute untuk admin: { key, action: "list" | "status" | "delete", id, status }.
+// Satu rute untuk admin (wajib cookie sesi): { action: "list" | "status" | "delete", id, status }.
 export async function POST(req) {
   const { ADMIN_KEY } = process.env;
   if (!ADMIN_KEY || !upstashConfigured()) return fail("Fitur ini belum diatur di server (ADMIN_KEY, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN).", 503);
@@ -16,11 +16,8 @@ export async function POST(req) {
   const origin = req.headers.get("origin");
   if (origin && new URL(origin).host !== req.headers.get("host")) return fail("Permintaan ditolak.", 403);
 
+  if (!(await isAdmin(req))) return fail("Sesi admin habis. Muat ulang halaman, lalu masuk lagi.", 401);
   const body = await req.json().catch(() => ({}));
-  if (!safeEqual(String(body.key ?? ""), ADMIN_KEY)) {
-    await new Promise((r) => setTimeout(r, 700)); // memperlambat tebak-tebakan kunci
-    return fail("Kunci admin salah.", 401);
-  }
 
   try {
     if (body.action === "list") {
