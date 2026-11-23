@@ -4,89 +4,79 @@ import { useEffect, useState } from "react";
 import { LABELS, STATUSES, statusClass } from "../lib/requests.js";
 import { timeAgo } from "../lib/browse.js";
 
-async function call(key, body) {
-  const res = await fetch("/api/admin/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, ...body }) });
+const FILTERS = [["semua", "Semua"], ["menunggu", "Menunggu"], ["dikerjakan", "Dikerjakan"], ["selesai", "Selesai"]];
+
+async function call(body) {
+  const res = await fetch("/api/admin/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (res.status === 401) {
+    window.location.reload(); // sesi habis: kembali ke halaman masuk
+    throw new Error("Sesi admin habis.");
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Gagal.");
   return data;
 }
 
-export default function AdminRequests() {
-  const [key, setKey] = useState("");
+export default function AdminRequests({ hidden = false, onCount }) {
   const [items, setItems] = useState(null);
+  const [filter, setFilter] = useState("semua");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
-  async function load(k = key) {
-    setBusy(true);
-    setErr("");
+  async function load() {
     try {
-      const d = await call(k, { action: "list" });
+      const d = await call({ action: "list" });
       setItems(d.requests);
-      try {
-        sessionStorage.setItem("sf_admin", k);
-      } catch {
-        /* abaikan */
-      }
+      onCount?.(d.requests.filter((r) => r.status === "menunggu").length);
+      setErr("");
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function act(body) {
+    setBusy(true);
+    try {
+      await call(body);
+      await load();
     } catch (e) {
       setErr(e.message);
     }
     setBusy(false);
   }
 
-  useEffect(() => {
-    try {
-      const k = sessionStorage.getItem("sf_admin");
-      if (k) {
-        setKey(k);
-        load(k);
-      }
-    } catch {
-      /* penyimpanan sesi tidak tersedia */
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function act(body) {
-    setBusy(true);
-    setErr("");
-    try {
-      await call(key, body);
-      await load();
-    } catch (e) {
-      setErr(e.message);
-      setBusy(false);
-    }
-  }
-
-  const waiting = items ? items.filter((r) => r.status === "menunggu").length : 0;
+  const count = (s) => (items || []).filter((r) => s === "semua" || r.status === s).length;
+  const shown = (items || []).filter((r) => filter === "semua" || r.status === filter);
 
   return (
-    <section className="login-card adm-card" aria-label="Request masuk">
-      <h1>Request masuk</h1>
-      {items === null ? (
+    <section hidden={hidden} aria-label="Request masuk">
+      {items === null && !err && <p className="ad-empty">Memuat…</p>}
+      {err && <p className="ad-err ad-msg" role="status">{err}</p>}
+      {items && (
         <>
-          <p>Masukkan kunci admin untuk melihat request scenepack.</p>
-          <form className="adm-load" onSubmit={(e) => { e.preventDefault(); load(); }}>
-            <input type="password" required value={key} onChange={(e) => setKey(e.target.value)} placeholder="Kunci admin" autoComplete="off" aria-label="Kunci admin" />
-            <button type="submit" className="cta cta-ink" disabled={busy}>
-              {busy ? "Memuat…" : "Muat"}
-            </button>
-          </form>
-        </>
-      ) : (
-        <>
-          <p>{items.length === 0 ? "Belum ada request." : `${items.length} request, ${waiting} menunggu.`}</p>
-          <ul className="adm-list">
-            {items.map((r) => (
-              <li key={r.id} className="adm-req">
-                <div className="adm-top">
+          <div className="ad-chips" role="group" aria-label="Saring request">
+            {FILTERS.map(([k, label]) => (
+              <button type="button" key={k} className="ad-chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>
+                {label} {count(k)}
+              </button>
+            ))}
+          </div>
+          {shown.length === 0 && <p className="ad-empty">{items.length === 0 ? "Belum ada request." : "Tidak ada request di saringan ini."}</p>}
+          <ul className="ad-list">
+            {shown.map((r) => (
+              <li key={r.id} className="ad-req">
+                <div className="ad-req-top">
                   <h3>{r.title}</h3>
                   <span className={`st ${statusClass(r.status)}`}>{LABELS[r.status]}</span>
                 </div>
                 {r.note && <p>{r.note}</p>}
                 <small>{timeAgo(r.ts)}</small>
-                <div className="adm-actions">
+                <div className="ad-acts">
                   {STATUSES.filter((s) => s !== "menunggu").map((s) => (
                     <button type="button" key={s} aria-pressed={r.status === s} disabled={busy} onClick={() => act({ action: "status", id: r.id, status: s })}>
                       {LABELS[s]}
@@ -107,7 +97,6 @@ export default function AdminRequests() {
           </ul>
         </>
       )}
-      {err && <p className="login-err" role="status">{err}</p>}
     </section>
   );
 }
