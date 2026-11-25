@@ -37,18 +37,18 @@
   },
   "xkdramascenes": {
    "lastOk": 1794814227252,
-   "lastTry": 1795333203676,
-   "fails": 2
+   "lastTry": 1795598713342,
+   "fails": 3
   },
   "delmscene": {
    "lastOk": 1794814227252,
-   "lastTry": 1795333203676,
-   "fails": 2
+   "lastTry": 1795598713342,
+   "fails": 3
   },
   "allscpdramas": {
    "lastOk": 1794814227252,
-   "lastTry": 1795333203676,
-   "fails": 2
+   "lastTry": 1795598713342,
+   "fails": 3
   },
   "blvnscenes": {
    "lastOk": 1794814227252,
@@ -62,13 +62,13 @@
   },
   "h2hfiles": {
    "lastOk": 0,
-   "lastTry": 1795333203676,
-   "fails": 4
+   "lastTry": 1795598713342,
+   "fails": 5
   },
   "jadorecs": {
    "lastOk": 0,
-   "lastTry": 1795333203676,
-   "fails": 4
+   "lastTry": 1795598713342,
+   "fails": 5
   },
   "xkactorsscps": {
    "lastOk": 1794544518565,
@@ -81,8 +81,8 @@
    "fails": 0
   },
   "oasisadiespacks": {
-   "lastOk": 1795333203676,
-   "lastTry": 1795333203676,
+   "lastOk": 1795598713342,
+   "lastTry": 1795598713342,
    "fails": 0
   },
   "mqclaepacks": {
@@ -107,23 +107,23 @@
   },
   "sizooo.scp": {
    "lastOk": 1795267164581,
-   "lastTry": 1795516515513,
-   "fails": 1
+   "lastTry": 1795598713342,
+   "fails": 2
   },
   "kdramaslogoless": {
    "lastOk": 1795267164581,
-   "lastTry": 1795516515513,
-   "fails": 1
+   "lastTry": 1795598713342,
+   "fails": 2
   },
   "parcjihoonscp": {
    "lastOk": 1795267164581,
-   "lastTry": 1795516515513,
-   "fails": 1
+   "lastTry": 1795598713342,
+   "fails": 2
   },
   "_cewinascp": {
    "lastOk": 1795267164581,
-   "lastTry": 1795516515513,
-   "fails": 1
+   "lastTry": 1795598713342,
+   "fails": 2
   },
   "frivpacks": {
    "lastOk": 1795516515513,
